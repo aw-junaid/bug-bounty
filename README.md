@@ -9,6 +9,9 @@
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/t/aw-junaid/cybersec-projects)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fawjunaid.com%2F)
 ![GitHub repo size](https://img.shields.io/github/repo-size/aw-junaid/bug-bounty)
+![Made with Markdown](https://img.shields.io/badge/Made%20with-Markdown-1f425f.svg)
+![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 > Documenting my security research journey: This repository contains detailed vulnerability write-ups, proof-of-concept (PoC) exploits, and the custom automation tools I use for reconnaissance and system assessment.
 # Contact With Me:
 
@@ -38,4 +41,6 @@
 
   # 💰 You can help me by Donating
   [![BuyMeACoffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/awjunaid) 
-  
+
+
+
