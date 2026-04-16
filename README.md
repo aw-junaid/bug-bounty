@@ -6,7 +6,7 @@
 ![YouTube Channel Subscribers](https://img.shields.io/youtube/channel/subscribers/UClhKVCHjOxBTNM50lOBTgoA)
 ![Discord](https://img.shields.io/discord/1163365511309049948)
 ![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/awjunaid_)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/t/aw-junaid/cybersec-projects)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/t/aw-junaid/bug-bounty)
 ![Website](https://img.shields.io/website?url=https%3A%2F%2Fawjunaid.com%2F)
 ![GitHub repo size](https://img.shields.io/github/repo-size/aw-junaid/bug-bounty)
 ![Made with Markdown](https://img.shields.io/badge/Made%20with-Markdown-1f425f.svg)
