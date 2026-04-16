@@ -1,0 +1,97 @@
+# GitHub Actions Workflow for Automated Recon
+name: Automated Reconnaissance
+
+on:
+  schedule:
+    # Run daily at midnight
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: 'Target domain'
+        required: true
+        default: 'example.com'
+
+jobs:
+  recon:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Install Dependencies
+      run: |
+        # Install required tools
+        go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+        go install -v github.com/tomnomnom/assetfinder@latest
+        go install -v github.com/tomnomnom/waybackurls@latest
+        go install -v github.com/lc/gau/v2/cmd/gau@latest
+        go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
+        
+        # Add to PATH
+        echo "$HOME/go/bin" >> $GITHUB_PATH
+        
+        # Install other tools
+        sudo apt-get update
+        sudo apt-get install -y jq curl nmap
+    
+    - name: Run Reconnaissance
+      env:
+        DOMAIN: ${{ github.event.inputs.domain || 'example.com' }}
+      run: |
+        echo "Starting reconnaissance for $DOMAIN"
+        
+        # Create output directory
+        mkdir -p results/{subdomains,urls,scans}
+        
+        # Subdomain enumeration
+        echo "[*] Enumerating subdomains..."
+        subfinder -d $DOMAIN -silent -o results/subdomains/subfinder.txt
+        assetfinder --subs-only $DOMAIN > results/subdomains/assetfinder.txt
+        curl -s "https://crt.sh/?q=%.${DOMAIN}&output=json" | jq -r '.[].name_value' | sort -u > results/subdomains/crtsh.txt
+        
+        # Combine and deduplicate
+        cat results/subdomains/*.txt | sort -u > results/subdomains/all_subdomains.txt
+        
+        # Find live hosts
+        echo "[*] Finding live hosts..."
+        httpx -l results/subdomains/all_subdomains.txt -silent -o results/subdomains/live_hosts.txt
+        
+        # Collect URLs
+        echo "[*] Collecting URLs..."
+        cat results/subdomains/live_hosts.txt | waybackurls > results/urls/wayback.txt
+        cat results/subdomains/live_hosts.txt | gau > results/urls/gau.txt
+        cat results/urls/*.txt | sort -u > results/urls/all_urls.txt
+        
+        # Generate summary
+        echo "## Recon Summary - $(date)" > results/summary.md
+        echo "- Subdomains found: $(wc -l < results/subdomains/all_subdomains.txt)" >> results/summary.md
+        echo "- Live hosts: $(wc -l < results/subdomains/live_hosts.txt)" >> results/summary.md
+        echo "- URLs collected: $(wc -l < results/urls/all_urls.txt)" >> results/summary.md
+    
+    - name: Upload Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: recon-results
+        path: results/
+        retention-days: 30
+    
+    - name: Create Issue with Results
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const summary = fs.readFileSync('results/summary.md', 'utf8');
+          
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `Recon Results - ${new Date().toISOString().split('T')[0]}`,
+            body: summary
+          });
