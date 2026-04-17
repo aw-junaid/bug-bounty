@@ -21,29 +21,29 @@
 ## 1.1 Introduction to Programming
 
 ### 1.1.1 What is Programming?
-- Definition and purpose
-- Why programming matters in cybersecurity
-- How code execution works
-- Compiled vs Interpreted languages
+- [Definition and purpose](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Definition%20and%20purpose.md)
+- [Why programming matters in cybersecurity](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Why%20programming%20matters%20in%20cybersecurity.md)
+- [How code execution works](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/How%20code%20execution%20works.md)
+- [Compiled vs Interpreted languages](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Compiled%20vs%20Interpreted%20languages.md)
 
 ### 1.1.2 Programming Languages Overview
-- Python
-  - Why Python for security
-  - Ease of learning
-  - Extensive libraries
-  - Industry standard
-- Bash/Shell Scripting
-  - System automation
-  - Linux interaction
-  - Quick scripting
-- JavaScript
-  - Web security testing
-  - DOM manipulation
-  - Client-side vulnerabilities
-- C/Assembly
-  - Low-level understanding
-  - Buffer overflow concepts
-  - Reverse engineering basics
+- [Python](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Python.md)
+  - [Why Python for security](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Python.md#part-1-why-python-for-security--the-foundational-argument)
+  - [Ease of learning](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Python.md#part-2-ease-of-learning--the-democratization-of-security-automation)
+  - [Extensive libraries](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Python.md#part-3-extensive-libraries--the-force-multiplier)
+  - [Industry standard](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Python.md#part-4-industry-standard--the-network-effect-and-institutional-adoption)
+- [Bash/Shell Scripting](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Bash-Shell%20Scripting.md)
+  - [System automation](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Bash-Shell%20Scripting.md#part-2-system-automation--orchestrating-security-at-scale)
+  - [Linux interaction](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Bash-Shell%20Scripting.md#part-3-linux-interaction--the-deep-integration-advantage)
+  - [Quick scripting](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Bash-Shell%20Scripting.md#part-4-quick-scripting--the-art-of-the-security-one-liner)
+- [JavaScript](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/JavaScript%20for%20Security%20Professionals.md)
+  - [Web security testing](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/JavaScript%20for%20Security%20Professionals.md#part-2-web-security-testing-with-javascript)
+  - [DOM manipulation](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/JavaScript%20for%20Security%20Professionals.md#part-3-dom-manipulation-and-security-implications)
+  - [Client-side vulnerabilities](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/JavaScript%20for%20Security%20Professionals.md#part-4-client-side-vulnerabilities-deep-dive)
+- [C/Assembly](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/C-Assembly.md)
+  - [Low-level understanding](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/C-Assembly.md#part-1-low-level-understanding--the-foundation-of-system-security)
+  - [Buffer overflow concepts](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/C-Assembly.md#part-2-buffer-overflow-concepts--the-canonical-vulnerability)
+  - [Reverse engineering basics](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/C-Assembly.md#part-3-reverse-engineering-basics)
 
 ---
 
@@ -52,20 +52,20 @@
 ### 1.2.1 Getting Started with Python
 
 #### Installation and Setup
-- Installing Python 3
-- Setting up IDE/Text Editor
-  - VS Code
-  - PyCharm
-  - Vim/Nano
+- [Installing Python 3](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Python%20Programming.md#part-1-installing-python-3--the-foundation)
+- [Setting up IDE/Text Editor](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Python%20Programming.md#part-2-setting-up-your-ide-or-text-editor)
+  - [VS Code](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Python%20Programming.md#visual-studio-code-vs-code--the-modern-standard)
+  - [PyCharm](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Python%20Programming.md#pycharm--the-professional-python-ide)
+  - [Vim/Nano](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Python%20Programming.md#vimneovim--the-terminal-warriors-choice)
 - Virtual environments
-  - Creating virtual environments
-  - Managing dependencies
+  - [Creating virtual environments](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Python%20Programming.md#part-3-virtual-environments--the-professionals-best-friend)
+  - [Managing dependencies](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Python%20Programming.md#managing-dependencies-with-pip)
   - pip package manager
 
 #### Running Python Code
-- Interactive Python shell
-- Running scripts
-- Python version checking
+- [Interactive Python shell](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Running%20Python%20Code.md#part-1-the-interactive-python-shell--your-instant-feedback-laboratory)
+- [Running scripts](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Running%20Python%20Code.md#part-2-running-python-scripts--from-source-to-execution)
+- [Python version checking](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/Running%20Python%20Code.md#part-3-python-version-checking-and-management)
 
 ### 1.2.2 Python Basics
 
