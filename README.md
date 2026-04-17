@@ -12,6 +12,7 @@
 ![Made with Markdown](https://img.shields.io/badge/Made%20with-Markdown-1f425f.svg)
 ![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 > Documenting my security research journey: This repository contains detailed vulnerability write-ups, proof-of-concept (PoC) exploits, and the custom automation tools I use for reconnaissance and system assessment.
 # Contact With Me:
 
@@ -43,14 +44,6 @@
   [![BuyMeACoffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/awjunaid) 
 
 
-
-# 🛡️ Bug Bounty Resource Hub
-
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Security](https://img.shields.io/badge/security-report-red.svg)](SECURITY.md)
-[![Code of Conduct](https://img.shields.io/badge/code%20of%20conduct-1.0.0-green.svg)](CODE_OF_CONDUCT.md)
-
-A comprehensive collection of bug bounty methodologies, cheatsheets, tools, and write-ups for security researchers and penetration testers.
 
 ---
 
