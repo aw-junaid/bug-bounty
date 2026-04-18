@@ -1,0 +1,402 @@
+
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .section { margin-bottom: 2rem; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .tab { padding: 6px 14px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); transition: all 0.15s; }
+  .tab.active { background: var(--color-background-tertiary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .layer-label { font-size: 11px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 6px; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-bottom: 10px; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 12px; cursor: pointer; transition: border-color 0.15s; }
+  .card:hover { border-color: var(--color-border-primary); }
+  .card-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .card-sub { font-size: 11px; color: var(--color-text-secondary); line-height: 1.4; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 20px; margin-bottom: 4px; }
+  .badge-blue { background: var(--color-background-info); color: var(--color-text-info); }
+  .badge-green { background: var(--color-background-success); color: var(--color-text-success); }
+  .badge-amber { background: var(--color-background-warning); color: var(--color-text-warning); }
+  .badge-red { background: var(--color-background-danger); color: var(--color-text-danger); }
+  .arrow-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 4px 0; color: var(--color-text-tertiary); font-size: 12px; }
+  .detail-panel { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; margin-top: 1rem; font-size: 13px; line-height: 1.6; color: var(--color-text-secondary); border-left: 2px solid var(--color-border-info); }
+  .detail-panel strong { color: var(--color-text-primary); font-weight: 500; }
+  .flow-step { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .flow-step:last-child { border-bottom: none; }
+  .step-num { min-width: 22px; height: 22px; border-radius: 50%; background: var(--color-background-info); color: var(--color-text-info); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; }
+  .step-content { flex: 1; }
+  .step-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .step-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .pill { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: var(--color-background-tertiary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+  h2 { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 12px; }
+  h3 { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; margin-top: 14px; }
+  .tech-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tech-tag { display: flex; align-items: center; gap: 5px; font-size: 12px; padding: 4px 10px; border-radius: var(--border-radius-md); background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .dot-blue { background: #378ADD; }
+  .dot-green { background: #639922; }
+  .dot-amber { background: #BA7517; }
+  .dot-teal { background: #0F6E56; }
+  .dot-purple { background: #534AB7; }
+  .dot-coral { background: #993C1D; }
+  .divider { height: 0.5px; background: var(--color-border-tertiary); margin: 14px 0; }
+  .note { font-size: 12px; color: var(--color-text-tertiary); font-style: italic; margin-top: 8px; }
+</style>
+
+<div style="padding: 1rem 0;">
+<h2 style="margin-bottom: 4px;">Slack's Technology Architecture</h2>
+<p style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 16px;">Click any tab to explore each layer. Click cards for deeper detail.</p>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('overview')">Overview</div>
+  <div class="tab" onclick="show('frontend')">Frontend</div>
+  <div class="tab" onclick="show('backend')">Backend</div>
+  <div class="tab" onclick="show('database')">Database</div>
+  <div class="tab" onclick="show('realtime')">Real-time</div>
+  <div class="tab" onclick="show('infra')">Infrastructure</div>
+  <div class="tab" onclick="show('flow')">Message Flow</div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="view active" id="view-overview">
+  <div class="layer-label">Client layer</div>
+  <div class="card-grid">
+    <div class="card" onclick="show('frontend')">
+      <span class="badge badge-blue">Web</span>
+      <div class="card-title">React + ES6</div>
+      <div class="card-sub">TypeScript migration, modular components</div>
+    </div>
+    <div class="card" onclick="show('frontend')">
+      <span class="badge badge-blue">Desktop</span>
+      <div class="card-title">Electron</div>
+      <div class="card-sub">Hybrid: bundled + remote assets</div>
+    </div>
+    <div class="card" onclick="show('frontend')">
+      <span class="badge badge-blue">Mobile</span>
+      <div class="card-title">Swift / Kotlin</div>
+      <div class="card-sub">Native iOS and Android apps</div>
+    </div>
+  </div>
+  <div class="arrow-row">↕ HTTP REST API + WebSocket</div>
+  <div class="layer-label">Backend layer</div>
+  <div class="card-grid">
+    <div class="card" onclick="show('backend')">
+      <span class="badge badge-amber">Core</span>
+      <div class="card-title">PHP / Hack</div>
+      <div class="card-sub">Monolith on HHVM runtime</div>
+    </div>
+    <div class="card" onclick="show('realtime')">
+      <span class="badge badge-amber">Messaging</span>
+      <div class="card-title">Java pub/sub</div>
+      <div class="card-sub">Real-time message distribution</div>
+    </div>
+    <div class="card" onclick="show('backend')">
+      <span class="badge badge-amber">Jobs</span>
+      <div class="card-title">Kafka + Redis</div>
+      <div class="card-sub">Async job queues at scale</div>
+    </div>
+    <div class="card" onclick="show('infra')">
+      <span class="badge badge-amber">Edge</span>
+      <div class="card-title">Flannel</div>
+      <div class="card-sub">In-house edge cache</div>
+    </div>
+  </div>
+  <div class="arrow-row">↕ Vitess routing layer</div>
+  <div class="layer-label">Data layer</div>
+  <div class="card-grid">
+    <div class="card" onclick="show('database')">
+      <span class="badge badge-green">Primary</span>
+      <div class="card-title">MySQL + Vitess</div>
+      <div class="card-sub">Sharded, globally replicated</div>
+    </div>
+    <div class="card" onclick="show('backend')">
+      <span class="badge badge-green">Cache</span>
+      <div class="card-title">Redis</div>
+      <div class="card-sub">In-memory, queues & sessions</div>
+    </div>
+    <div class="card" onclick="show('infra')">
+      <span class="badge badge-green">Search</span>
+      <div class="card-title">Apache Solr</div>
+      <div class="card-sub">Full-text message search</div>
+    </div>
+    <div class="card" onclick="show('infra')">
+      <span class="badge badge-green">Files</span>
+      <div class="card-title">AWS S3 + CDN</div>
+      <div class="card-sub">Media, attachments, avatars</div>
+    </div>
+  </div>
+  <div class="detail-panel">
+    <strong>How it all fits together:</strong> Slack started as a simple LAMP stack (Linux, Apache, MySQL, PHP) and evolved over a decade into a distributed architecture. The PHP monolith still handles most business logic, but is backed by Vitess-sharded MySQL, Kafka job queues, a Java real-time service, and a custom edge cache called Flannel — each solving a specific scaling bottleneck.
+  </div>
+</div>
+
+<!-- FRONTEND -->
+<div class="view" id="view-frontend">
+  <h2>Frontend stack</h2>
+  <h3>Web app</h3>
+  <div class="tech-row">
+    <div class="tech-tag"><span class="dot dot-blue"></span>React</div>
+    <div class="tech-tag"><span class="dot dot-blue"></span>ES6 / TypeScript</div>
+    <div class="tech-tag"><span class="dot dot-blue"></span>Redux (state)</div>
+    <div class="tech-tag"><span class="dot dot-blue"></span>WebSocket client</div>
+  </div>
+  <div class="detail-panel" style="margin-top:10px">
+    The web app was originally CoffeeScript with vanilla DOM APIs. It migrated to React + async/await ES6, and is now progressively moving to TypeScript for type safety. The state management model maintains a local snapshot of the entire workspace — all channels, members, and preferences — in memory (RAM) after the initial load.
+  </div>
+
+  <h3>Desktop app</h3>
+  <div class="tech-row">
+    <div class="tech-tag"><span class="dot dot-purple"></span>Electron</div>
+    <div class="tech-tag"><span class="dot dot-purple"></span>Hybrid approach</div>
+    <div class="tech-tag"><span class="dot dot-purple"></span>Remote asset loading</div>
+  </div>
+  <div class="detail-panel" style="margin-top:10px">
+    <strong>Hybrid model:</strong> Unlike apps that bundle everything locally, Slack's Electron app ships some core assets but loads most code remotely. This means updates are instant — no reinstall needed — while startup-critical code is bundled for speed. The desktop app wraps the same React web codebase inside Electron's Chromium shell.
+  </div>
+
+  <h3>Mobile apps</h3>
+  <div class="tech-row">
+    <div class="tech-tag"><span class="dot dot-teal"></span>Swift (iOS)</div>
+    <div class="tech-tag"><span class="dot dot-teal"></span>Kotlin (Android)</div>
+    <div class="tech-tag"><span class="dot dot-teal"></span>Modular architecture</div>
+  </div>
+  <div class="detail-panel" style="margin-top:10px">
+    In 2020, Slack undertook a major mobile refactor — Stabilize, Modularize, Modernize — breaking a large monolithic mobile codebase into loosely coupled modules. Mobile clients use the REST Web API for most actions (instead of WebSockets) to avoid the overhead of maintaining persistent connections on mobile networks.
+  </div>
+</div>
+
+<!-- BACKEND -->
+<div class="view" id="view-backend">
+  <h2>Backend stack</h2>
+  <h3>Core application server</h3>
+  <div class="tech-row">
+    <div class="tech-tag"><span class="dot dot-amber"></span>PHP 5 → HHVM → Hack</div>
+    <div class="tech-tag"><span class="dot dot-amber"></span>XHP (server-side HTML)</div>
+    <div class="tech-tag"><span class="dot dot-amber"></span>REST Web API</div>
+  </div>
+  <div class="detail-panel" style="margin-top:10px">
+    <strong>The PHP monolith</strong> is Slack's central brain — it handles all CRUD operations on the database (channels, messages, users), processes API calls, and manages authentication. It started as PHP 5, migrated to HHVM (which runs PHP much faster), and then moved to Hack — Facebook's PHP superset — for type safety, async support, and better tooling. All client interactions go through this monolith first.
+  </div>
+
+  <h3>Async job queue system</h3>
+  <div class="tech-row">
+    <div class="tech-tag"><span class="dot dot-coral"></span>Apache Kafka</div>
+    <div class="tech-tag"><span class="dot dot-coral"></span>Redis (job queue)</div>
+    <div class="tech-tag"><span class="dot dot-coral"></span>Kafkagate (Go service)</div>
+    <div class="tech-tag"><span class="dot dot-coral"></span>JQRelay</div>
+  </div>
+  <div class="detail-panel" style="margin-top:10px">
+    Activities like unfurling links, indexing messages for search, and sending notifications are too slow to handle in real-time — they get pushed to an async job queue. Originally just Redis queues, Slack added Kafka in front for scale. A Go service called <strong>Kafkagate</strong> accepts job submissions via HTTP POST and enqueues them to Kafka. A relay service called <strong>JQRelay</strong> pulls jobs from Kafka and drops them into Redis, ensuring each topic has exactly one relay process.
+  </div>
+
+  <h3>Search</h3>
+  <div class="tech-row">
+    <div class="tech-tag"><span class="dot dot-blue"></span>Apache Solr</div>
+    <div class="tech-tag"><span class="dot dot-blue"></span>Sharded by channel_id</div>
+  </div>
+  <div class="detail-panel" style="margin-top:10px">
+    Message search is powered by Apache Solr, partitioned using <strong>channel_id</strong> as the shard key — the same strategy used for the database — so message queries and search queries hit the same logical shard, keeping things consistent and avoiding cross-shard fan-out.
+  </div>
+</div>
+
+<!-- DATABASE -->
+<div class="view" id="view-database">
+  <h2>Database architecture</h2>
+  <h3>Evolution: LAMP → sharded MySQL → Vitess</h3>
+  <div class="flow-step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="step-title">Early days: single MySQL (LAMP)</div>
+      <div class="step-desc">The original database was a single MySQL instance — fast to set up, but immediately hit limits as workspaces grew into thousands of users.</div>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="step-title">Sharded MySQL (active-active)</div>
+      <div class="step-desc">Slack manually sharded MySQL by workspace — each workspace was assigned to a database shard and a message server shard. Two nodes per shard in different data centers replicated to each other asynchronously. When one failed, the other took over. This worked until shards themselves became hot spots.</div>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="step-title">Vitess (2017 → present)</div>
+      <div class="step-desc">Vitess is a sharding and topology management layer that sits on top of MySQL. Slack migrated to Vitess to solve hot spots and reduce operational complexity. Vitess's <strong>VtGate</strong> routing tier knows which table is sharded by which column — users by user_id, channels by channel_id, workspaces by workspace_id — so the PHP code no longer needs to manage routing. Multiple Vitess clusters now run in different geographic regions.</div>
+    </div>
+  </div>
+  <div class="detail-panel">
+    <strong>Key insight about message persistence:</strong> Every message is written to the MySQL database <em>before</em> it is broadcast over the WebSocket to other users. Durability comes first, delivery second. This is why Slack can recover messages even if your client disconnects mid-conversation.
+  </div>
+
+  <h3>Supporting data stores</h3>
+  <div class="card-grid" style="margin-top:10px">
+    <div class="card">
+      <div class="card-title">Redis</div>
+      <div class="card-sub">Session data, job queues, presence signals, short-lived caches</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Flannel (in-memory)</div>
+      <div class="card-sub">Edge-cached workspace snapshots — 80× faster than disk for sequential access</div>
+    </div>
+    <div class="card">
+      <div class="card-title">AWS S3</div>
+      <div class="card-sub">Files, images, avatars, and other media attachments</div>
+    </div>
+  </div>
+</div>
+
+<!-- REAL-TIME -->
+<div class="view" id="view-realtime">
+  <h2>Real-time messaging system</h2>
+
+  <h3>WebSocket + pub/sub architecture</h3>
+  <div class="detail-panel" style="margin-top:6px">
+    Real-time delivery is the hardest part of Slack's system. Over <strong>100 event types</strong> flow over WebSocket connections — new messages, typing indicators, file uploads, thread replies, presence changes, profile updates, and more. The system is built around a <strong>Java-based pub/sub service</strong> that distributes events across all connected clients.
+  </div>
+
+  <h3>Flannel: the edge caching layer</h3>
+  <div class="detail-panel">
+    When a client first connects, it needs to download the entire workspace snapshot (every user, channel, preference, avatar URL). This became slow and expensive as workspaces grew. Slack built <strong>Flannel</strong> — an application-level caching service deployed at edge data centers worldwide. Clients connect to Flannel, which holds the workspace snapshot in memory and opens its own persistent WebSocket back to Slack's US-East core. The client gets low-latency startup, and the core servers are shielded from millions of cold-start requests.
+  </div>
+
+  <h3>How consistent hashing assigns channels to gateways</h3>
+  <div class="detail-panel">
+    Each Slack channel is assigned to a specific <strong>gateway server</strong> using consistent hashing on the channel_id. This means all members of a channel connect (through Flannel) to the same gateway — making message fanout a simple in-process broadcast rather than a distributed scatter-gather. The gateway is a stateful, in-memory service that holds active WebSocket connections and pushes events the moment they arrive.
+  </div>
+
+  <h3>Logical clocks for message ordering</h3>
+  <div class="detail-panel">
+    Because messages flow through a distributed system, Slack uses a <strong>vector clock</strong> (logical clock) to establish causal ordering — it can determine which message came before which even across servers. Messages are also "salted" with a unique random token to prevent duplicate delivery when a client reconnects and replays missed events.
+  </div>
+
+  <div class="note">Mobile clients skip the WebSocket connection entirely and use REST API calls with timestamps to fetch messages missed since their last session — saving battery and bandwidth.</div>
+</div>
+
+<!-- INFRASTRUCTURE -->
+<div class="view" id="view-infra">
+  <h2>Infrastructure & cloud</h2>
+  <h3>AWS stack</h3>
+  <div class="card-grid">
+    <div class="card">
+      <span class="badge badge-blue">Compute</span>
+      <div class="card-title">EC2</div>
+      <div class="card-sub">Application and database servers</div>
+    </div>
+    <div class="card">
+      <span class="badge badge-blue">Storage</span>
+      <div class="card-title">S3</div>
+      <div class="card-sub">All media files and attachments</div>
+    </div>
+    <div class="card">
+      <span class="badge badge-blue">Load</span>
+      <div class="card-title">ELB + HAProxy</div>
+      <div class="card-sub">Layer 4 + app-tier balancing</div>
+    </div>
+    <div class="card">
+      <span class="badge badge-blue">DNS</span>
+      <div class="card-title">Route 53</div>
+      <div class="card-sub">Traffic routing & health checks</div>
+    </div>
+    <div class="card">
+      <span class="badge badge-blue">CDN</span>
+      <div class="card-title">CloudFront</div>
+      <div class="card-sub">Static assets, media, edge delivery</div>
+    </div>
+    <div class="card">
+      <span class="badge badge-blue">Security</span>
+      <div class="card-title">AWS KMS</div>
+      <div class="card-sub">Enterprise Key Management (EKM)</div>
+    </div>
+  </div>
+
+  <h3>Security & performance</h3>
+  <div class="tech-row" style="margin-top:6px">
+    <div class="tech-tag"><span class="dot dot-teal"></span>Cloudflare (DDoS / perf)</div>
+    <div class="tech-tag"><span class="dot dot-teal"></span>Akamai (CDN security)</div>
+    <div class="tech-tag"><span class="dot dot-teal"></span>TLS everywhere</div>
+    <div class="tech-tag"><span class="dot dot-teal"></span>Slack EKM</div>
+  </div>
+  <div class="detail-panel" style="margin-top:10px">
+    <strong>SSL termination</strong> at the message proxy level: encrypted WebSocket connections from clients are decrypted at the edge proxy, then forwarded over the internal WAN back to US-East core data center — reducing the SSL overhead on core servers. KMS key usage is logged via AWS CloudTrail for enterprise audit compliance.
+  </div>
+
+  <h3>Load balancing strategy</h3>
+  <div class="detail-panel">
+    Slack uses a <strong>fleet of HAProxy instances</strong> behind a Layer 4 AWS ELB. HAProxy distributes connections to the PHP application tier. For the message service, consistent hashing (not round-robin) routes connections — the same channel always goes to the same gateway server, enabling stateful in-memory fanout.
+  </div>
+</div>
+
+<!-- MESSAGE FLOW -->
+<div class="view" id="view-flow">
+  <h2>End-to-end message flow</h2>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;">What actually happens when you press Enter to send a message in Slack.</p>
+
+  <div class="flow-step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="step-title">Client sends REST POST to PHP backend</div>
+      <div class="step-desc">Your client sends an HTTP POST (not WebSocket) to the PHP monolith. The message content, channel ID, and workspace ID are included. The request routes through CloudFront → ELB → HAProxy → PHP app server.</div>
+      <div class="pill-row"><span class="pill">HTTP POST</span><span class="pill">CloudFront</span><span class="pill">HAProxy</span><span class="pill">PHP</span></div>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="step-title">PHP persists the message to MySQL (via Vitess)</div>
+      <div class="step-desc">Before anything else, the PHP server writes the message to MySQL through Vitess. VtGate routes the write to the correct shard based on channel_id. The message is durable on disk before delivery begins.</div>
+      <div class="pill-row"><span class="pill">Vitess VtGate</span><span class="pill">MySQL shard</span><span class="pill">Write-first</span></div>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="step-title">PHP notifies the Java message server</div>
+      <div class="step-desc">After the DB write succeeds, PHP signals the Java-based pub/sub message server that a new event is ready for the channel. Consistent hashing ensures PHP knows exactly which message server owns this channel.</div>
+      <div class="pill-row"><span class="pill">Pub/sub</span><span class="pill">Java tier</span><span class="pill">channel_id hash</span></div>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <div class="step-title">Message server fans out over WebSockets</div>
+      <div class="step-desc">The Java gateway holds open WebSocket connections for all active members of the channel. It pushes a new_msg event to every connected client simultaneously. For a channel with 8,000 members, this is 8,000 WebSocket pushes from a single in-memory broadcast.</div>
+      <div class="pill-row"><span class="pill">WebSocket push</span><span class="pill">In-memory fanout</span><span class="pill">8K× per message</span></div>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <div class="step-title">Async jobs run in the background</div>
+      <div class="step-desc">Meanwhile, secondary tasks are pushed to Kafka: unfurling the link preview, indexing the message in Solr for search, sending push notifications to offline mobile users, and triggering any Slack app webhooks.</div>
+      <div class="pill-row"><span class="pill">Kafka</span><span class="pill">Kafkagate</span><span class="pill">Solr indexing</span><span class="pill">Push notifications</span></div>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <div class="step-title">Recipient clients receive and render</div>
+      <div class="step-desc">Each recipient's client receives the WebSocket event, updates the local in-memory workspace snapshot, and re-renders the channel view with the new message. The logical clock timestamp ensures messages appear in causal order even if they arrive slightly out of sequence.</div>
+      <div class="pill-row"><span class="pill">Local state update</span><span class="pill">React re-render</span><span class="pill">Vector clock ordering</span></div>
+    </div>
+  </div>
+
+  <div class="detail-panel" style="margin-top:14px">
+    <strong>Scale reality check:</strong> Slack estimated that with 4 million users each sending 50 messages/day, a single message in an 8,000-person channel triggers 8,000 WebSocket pushes. Across all workspaces, the message server handles roughly <strong>1.6 trillion WebSocket events per day</strong>. This is why the stateful gateway + consistent hashing design is critical — without it, every message would require a distributed scatter-gather across all gateway servers.
+  </div>
+</div>
+
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  const tabs = ['overview','frontend','backend','database','realtime','infra','flow'];
+  const idx = tabs.indexOf(id);
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+}
+</script>
