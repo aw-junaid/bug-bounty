@@ -70,41 +70,41 @@
 ### 1.2.2 Python Basics
 
 #### Variables and Data Types
-- Strings
-  - String creation
-  - String operations
-  - String methods (upper, lower, replace, split, etc.)
-- Numbers
-  - Integers
-  - Floats
-  - Arithmetic operations
-- Lists
-  - Creating lists
-  - Accessing elements
-  - List methods (append, remove, extend, etc.)
-- Dictionaries
-  - Key-value pairs
-  - Accessing values
-  - Dictionary methods
-- Tuples
-  - Immutable sequences
-  - When to use tuples
-  - Unpacking tuples
-- Sets
+- [Strings](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#part-2-strings--working-with-text)
+  - [String creation](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#string-creation)
+  - [String operations](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#string-operations)
+  - [String methods (upper, lower, replace, split, etc.)](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#essential-string-methods-for-security)
+- [Numbers](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#part-3-numbers--integers-floats-and-arithmetic)
+  - [Integers](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#integers-int)
+  - [Floats](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#floating-point-numbers-float)
+  - [Arithmetic operations](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#arithmetic-operations-in-security-contexts)
+- [Lists](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#part-4-lists--ordered-mutable-collections)
+  - [Creating lists](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#creating-lists)
+  - [Accessing elements](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#accessing-and-slicing-lists)
+  - [List methods (append, remove, extend, etc.)](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#essential-list-methods)
+- [Dictionaries](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#part-5-dictionaries--key-value-mappings)
+  - [Key-value pairs](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#creating-dictionaries)
+  - [Accessing values](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#accessing-dictionary-values)
+  - [Dictionary methods](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#dictionary-methods-for-security-tasks)
+- [Tuples](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#part-6-tuples--immutable-sequences)
+  - [Immutable sequences](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#creating-tuples)
+  - [When to use tuples](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#accessing-tuples)
+  - [Unpacking tuples](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#tuple-unpacking)
+- [Sets](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#part-7-sets--unique-unordered-collections)
   - Unique elements
-  - Set operations
-  - Set methods
-- Booleans
-  - True/False values
-  - Boolean operations
+  - [Set operations](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#creating-sets)
+  - [Set methods](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#modifying-sets)
+- [Booleans](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#part-8-booleans--true-and-false-logic)
+  - [True/False values](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#boolean-values-and-operations)
+  - [Boolean operations](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Variables%20and%20Data%20Types.md#boolean-values-and-operations)
 
 #### Operators
-- Arithmetic operators (+, -, *, /, //, %, **)
-- Comparison operators (==, !=, >, <, >=, <=)
-- Logical operators (and, or, not)
-- Assignment operators (=, +=, -=, etc.)
-- Membership operators (in, not in)
-- Identity operators (is, is not)
+- [Arithmetic operators](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Operators.md#part-1-arithmetic-operators--the-mathematical-foundation) (+, -, *, /, //, %, **)
+- [Comparison operators](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Operators.md#part-2-comparison-operators--making-decisions) (==, !=, >, <, >=, <=)
+- [Logical operators](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Operators.md#part-3-logical-operators--combining-conditions) (and, or, not)
+- [Assignment operators](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Operators.md#part-4-assignment-operators--setting-values) (=, +=, -=, etc.)
+- [Membership operators](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Operators.md#part-5-membership-operators--searching-collections) (in, not in)
+- [Identity operators (is, is not)](https://github.com/aw-junaid/bug-bounty/blob/main/course/module-1/programming/python/Operators.md#part-7-operator-precedence-complete-reference)
 
 ### 1.2.3 Control Flow
 
