@@ -1,0 +1,195 @@
+
+
+<h2 class="sr-only">Interactive secure login system demo showing SQL injection protection layers</h2>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 1rem 0; }
+.panel { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; }
+.panel-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.field input { width: 100%; padding: 8px 10px; font-size: 14px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-primary); }
+.field input:focus { outline: none; box-shadow: 0 0 0 2px rgba(55,138,221,0.25); border-color: #378ADD; }
+button { width: 100%; padding: 10px; font-size: 14px; font-weight: 500; border-radius: var(--border-radius-md); cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); transition: background 0.15s; }
+button:hover { background: var(--color-background-secondary); }
+.log { margin-top: 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px; min-height: 80px; max-height: 160px; overflow-y: auto; font-size: 12px; font-family: var(--font-mono); }
+.log-entry { padding: 2px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.log-entry:last-child { border-bottom: none; }
+.ok { color: #1D9E75; }
+.warn { color: #BA7517; }
+.err { color: #E24B4A; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.badge-safe { background: #EAF3DE; color: #3B6D11; }
+.badge-danger { background: #FCEBEB; color: #A32D2D; }
+.status-bar { padding: 8px 12px; border-radius: var(--border-radius-md); font-size: 13px; margin-top: 10px; }
+.status-safe { background: #EAF3DE; color: #3B6D11; }
+.status-danger { background: #FCEBEB; color: #A32D2D; }
+.status-warn { background: #FAEEDA; color: #854F0B; }
+.layer-list { display: flex; flex-direction: column; gap: 6px; }
+.layer { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); font-size: 13px; }
+.layer-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.dot-active { background: #1D9E75; }
+.dot-inactive { background: #D3D1C7; }
+.layer-text { color: var(--color-text-primary); line-height: 1.4; }
+.layer-sub { font-size: 11px; color: var(--color-text-secondary); }
+.attack-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+.attack-btn { font-size: 12px; padding: 6px 8px; background: #FAEEDA; color: #854F0B; border: 0.5px solid #EF9F27; border-radius: var(--border-radius-md); cursor: pointer; }
+.attack-btn:hover { background: #FAC775; }
+.section-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 6px; }
+</style>
+
+<div class="container">
+  <div class="panel">
+    <div class="panel-title">Login form — try an attack</div>
+    <div class="attack-btns">
+      <button class="attack-btn" onclick="injectAttack(`' OR '1'='1`, 'any')">Bypass: OR 1=1</button>
+      <button class="attack-btn" onclick="injectAttack(`'; DROP TABLE users;--`, 'any')">Drop table</button>
+      <button class="attack-btn" onclick="injectAttack(`admin'--`, 'any')">Comment bypass</button>
+      <button class="attack-btn" onclick="injectAttack(`<script>alert(1)</script>`, 'xss')">XSS inject</button>
+    </div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="e.g. admin" oninput="analyze()" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter password" oninput="analyze()" />
+    </div>
+    <button onclick="tryLogin()">Sign in</button>
+    <div id="status" class="status-bar status-safe" style="display:none;"></div>
+    <div class="log" id="log"><div class="log-entry" style="color:var(--color-text-secondary)">Type something to see real-time analysis...</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Protection layers</div>
+    <div class="layer-list" id="layers">
+      <div class="layer" id="l1">
+        <div class="layer-dot dot-inactive" id="d1"></div>
+        <div class="layer-text">
+          <div>Parameterized query</div>
+          <div class="layer-sub">Input never touches SQL structure</div>
+        </div>
+      </div>
+      <div class="layer" id="l2">
+        <div class="layer-dot dot-inactive" id="d2"></div>
+        <div class="layer-text">
+          <div>Input sanitization</div>
+          <div class="layer-sub">Strips dangerous characters & tags</div>
+        </div>
+      </div>
+      <div class="layer" id="l3">
+        <div class="layer-dot dot-inactive" id="d3"></div>
+        <div class="layer-text">
+          <div>Input length check</div>
+          <div class="layer-sub">Rejects unusually long strings</div>
+        </div>
+      </div>
+      <div class="layer" id="l4">
+        <div class="layer-dot dot-inactive" id="d4"></div>
+        <div class="layer-text">
+          <div>Pattern detection</div>
+          <div class="layer-sub">Flags SQL keywords, comment chars</div>
+        </div>
+      </div>
+      <div class="layer" id="l5">
+        <div class="layer-dot dot-inactive" id="d5"></div>
+        <div class="layer-text">
+          <div>Password hashing (bcrypt)</div>
+          <div class="layer-sub">Never store plain text passwords</div>
+        </div>
+      </div>
+      <div class="layer" id="l6">
+        <div class="layer-dot dot-inactive" id="d6"></div>
+        <div class="layer-text">
+          <div>Rate limiting</div>
+          <div class="layer-sub">Blocks brute force attempts</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const sqlPatterns = [/('|")/i, /(--|#|\/\*)/i, /\b(OR|AND|UNION|SELECT|DROP|INSERT|DELETE|UPDATE|WHERE|FROM|HAVING)\b/i, /(;)/];
+const xssPatterns = [/<[^>]+>/i, /javascript:/i, /on\w+=/i];
+let attempts = 0;
+
+function injectAttack(val, field) {
+  if (field === 'xss') { document.getElementById('username').value = val; }
+  else { document.getElementById('username').value = val; }
+  document.getElementById('password').value = 'password123';
+  analyze();
+}
+
+function analyze() {
+  const u = document.getElementById('username').value;
+  const p = document.getElementById('password').value;
+  const input = u + p;
+  const logs = [];
+  let threatFound = false;
+
+  setDot('d1','active'); logs.push({cls:'ok', msg:'[param] Using prepared statement — input is pure data'});
+
+  const hasSql = sqlPatterns.some(r => r.test(input));
+  const hasXss = xssPatterns.some(r => r.test(input));
+  setDot('d2', hasSql || hasXss ? 'warn' : 'active');
+  if (hasSql) { logs.push({cls:'err', msg:'[sanitize] SQL pattern detected → BLOCKED'}); threatFound = true; }
+  else if (hasXss) { logs.push({cls:'err', msg:'[sanitize] XSS pattern detected → STRIPPED'}); threatFound = true; }
+  else { logs.push({cls:'ok', msg:'[sanitize] Input clean — no dangerous patterns'}); }
+
+  setDot('d3', input.length > 80 ? 'warn' : 'active');
+  if (input.length > 80) { logs.push({cls:'warn', msg:`[length] Input too long (${input.length} chars) → REJECTED`}); threatFound = true; }
+  else { logs.push({cls:'ok', msg:`[length] Input length OK (${input.length} chars)`}); }
+
+  const sqlKw = /(UNION|SELECT|DROP|INSERT|DELETE|WHERE|OR|AND)\b/i.test(input);
+  const cmtChar = /(--|#|\/\*)/.test(input);
+  setDot('d4', (sqlKw || cmtChar) ? 'warn' : 'active');
+  if (sqlKw || cmtChar) { logs.push({cls:'err', msg:'[pattern] SQL keyword/comment char found → FLAGGED'}); threatFound = true; }
+  else { logs.push({cls:'ok', msg:'[pattern] No SQL keywords or comment chars'}); }
+
+  setDot('d5','active'); logs.push({cls:'ok', msg:'[bcrypt] Password compared via hash — never plain text'});
+  setDot('d6','active'); logs.push({cls:'ok', msg:`[rate] ${attempts} attempt(s) this session — limit is 5`});
+
+  renderLog(logs);
+}
+
+function tryLogin() {
+  const u = document.getElementById('username').value;
+  const p = document.getElementById('password').value;
+  const st = document.getElementById('status');
+  attempts++;
+
+  const hasSql = sqlPatterns.some(r => r.test(u+p));
+  const hasXss = xssPatterns.some(r => r.test(u+p));
+  const tooLong = (u+p).length > 80;
+
+  st.style.display = 'block';
+  if (attempts > 5) {
+    st.className = 'status-bar status-danger';
+    st.textContent = 'Too many attempts. Account temporarily locked.';
+  } else if (hasSql || hasXss || tooLong) {
+    st.className = 'status-bar status-danger';
+    st.textContent = 'Malicious input detected. Request blocked and logged.';
+  } else if (u === 'admin' && p === 'admin123') {
+    st.className = 'status-bar status-safe';
+    st.textContent = 'Login successful. Welcome, admin!';
+  } else {
+    st.className = 'status-bar status-warn';
+    st.textContent = 'Invalid credentials. Try admin / admin123.';
+  }
+  analyze();
+}
+
+function setDot(id, state) {
+  const d = document.getElementById(id);
+  if (!d) return;
+  d.className = 'layer-dot ' + (state === 'active' ? 'dot-active' : state === 'warn' ? '' : 'dot-inactive');
+  if (state === 'warn') { d.style.background = '#BA7517'; } else { d.style.background = ''; }
+}
+
+function renderLog(logs) {
+  const el = document.getElementById('log');
+  el.innerHTML = logs.map(l => `<div class="log-entry ${l.cls}">${l.msg}</div>`).join('');
+}
+</script>
