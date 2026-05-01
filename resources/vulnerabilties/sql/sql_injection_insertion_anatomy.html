@@ -1,0 +1,124 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem 0;font-family:var(--font-sans)}
+.step-nav{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.sn{padding:6px 14px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;background:var(--color-background-primary);color:var(--color-text-secondary)}
+.sn.active{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.panel{display:none}.panel.active{display:block}
+.code-row{display:flex;flex-wrap:wrap;gap:4px;padding:14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-family:var(--font-mono);font-size:14px;margin-bottom:12px;align-items:center;line-height:2}
+.tok{padding:2px 6px;border-radius:4px;display:inline-block}
+.tok-dev{background:#EAF3DE;color:#3B6D11}
+.tok-data{background:#E6F1FB;color:#0C447C}
+.tok-evil{background:#FCEBEB;color:#A32D2D}
+.tok-cmd{background:#FAEEDA;color:#854F0B}
+.tok-comment{background:#EEEDFE;color:#3C3489}
+.tok-neutral{background:var(--color-background-tertiary);color:var(--color-text-secondary)}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.leg{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.explain{font-size:13px;color:var(--color-text-secondary);line-height:1.6;padding:10px 12px;border-left:2px solid var(--color-border-info);margin-bottom:12px}
+.result-box{padding:10px 12px;border-radius:var(--border-radius-md);font-size:13px;margin-bottom:8px}
+.result-safe{background:#EAF3DE;color:#3B6D11;border:0.5px solid #639922}
+.result-danger{background:#FCEBEB;color:#A32D2D;border:0.5px solid #E24B4A}
+.result-warn{background:#FAEEDA;color:#854F0B;border:0.5px solid #EF9F27}
+</style>
+<div class="wrap">
+  <h2 class="sr-only">Step-by-step animation of how a malicious user inserts SQL commands into application code</h2>
+  <div class="step-nav">
+    <div class="sn active" onclick="goStep(0)">1. Normal query</div>
+    <div class="sn" onclick="goStep(1)">2. Quote escapes string</div>
+    <div class="sn" onclick="goStep(2)">3. Command injected</div>
+    <div class="sn" onclick="goStep(3)">4. Comment silences rest</div>
+    <div class="sn" onclick="goStep(4)">5. UNION attack</div>
+  </div>
+
+  <div class="panel active" id="p0">
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:#C0DD97"></div>Developer code</div>
+      <div class="leg"><div class="leg-dot" style="background:#B5D4F4"></div>User data (safe)</div>
+    </div>
+    <div class="code-row">
+      <span class="tok tok-dev">SELECT * FROM users WHERE username =</span>
+      <span class="tok tok-dev">'</span><span class="tok tok-data">alice</span><span class="tok tok-dev">'</span>
+      <span class="tok tok-dev">AND password =</span>
+      <span class="tok tok-dev">'</span><span class="tok tok-data">mypassword</span><span class="tok tok-dev">'</span>
+    </div>
+    <div class="explain">The developer wraps user input in single quotes <code>'</code>. The database sees <strong>alice</strong> as pure string data and checks it against the users table. Everything works as intended.</div>
+    <div class="result-box result-safe">Result: Checks if alice / mypassword matches a record. Safe, normal behaviour.</div>
+  </div>
+
+  <div class="panel" id="p1">
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:#C0DD97"></div>Developer code</div>
+      <div class="leg"><div class="leg-dot" style="background:#F7C1C1"></div>Attacker's quote (closes string!)</div>
+    </div>
+    <div class="code-row">
+      <span class="tok tok-dev">SELECT * FROM users WHERE username =</span>
+      <span class="tok tok-dev">'</span><span class="tok tok-evil">'</span>
+      <span style="color:var(--color-text-tertiary);font-size:12px">← attacker's quote closes the string here</span>
+    </div>
+    <div class="explain">The attacker types a single quote <code>'</code> as their username. This <strong>closes</strong> the string the developer opened. Everything after it is now outside the string — it becomes raw SQL the database will execute as code.</div>
+    <div class="result-box result-warn">The string context is broken. The DB sees a syntax error — but now the attacker knows injection is possible.</div>
+  </div>
+
+  <div class="panel" id="p2">
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:#C0DD97"></div>Developer code</div>
+      <div class="leg"><div class="leg-dot" style="background:#F7C1C1"></div>Attacker's quote</div>
+      <div class="leg"><div class="leg-dot" style="background:#FAC775"></div>Injected SQL command</div>
+    </div>
+    <div class="code-row">
+      <span class="tok tok-dev">SELECT * FROM users WHERE username =</span>
+      <span class="tok tok-dev">'</span><span class="tok tok-evil">'</span>
+      <span class="tok tok-cmd">OR</span>
+      <span class="tok tok-cmd">'1'='1'</span>
+      <span class="tok tok-dev">AND password =</span>
+      <span class="tok tok-dev">'anything'</span>
+    </div>
+    <div class="explain">Attacker types: <code>' OR '1'='1</code>. Their quote closes the username string, then they append <code>OR '1'='1'</code> — a condition that is always true. The DB evaluates this as real logic, not data.</div>
+    <div class="result-box result-danger">Result: Returns ALL users because OR '1'='1' is always true. Attacker logs in without a valid password.</div>
+  </div>
+
+  <div class="panel" id="p3">
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:#C0DD97"></div>Developer code</div>
+      <div class="leg"><div class="leg-dot" style="background:#F7C1C1"></div>Attacker input</div>
+      <div class="leg"><div class="leg-dot" style="background:#FAC775"></div>Injected command</div>
+      <div class="leg"><div class="leg-dot" style="background:#CECBF6"></div>Comment (kills rest of query)</div>
+    </div>
+    <div class="code-row">
+      <span class="tok tok-dev">SELECT * FROM users WHERE username =</span>
+      <span class="tok tok-dev">'</span><span class="tok tok-evil">admin</span><span class="tok tok-evil">'</span>
+      <span class="tok tok-comment">--</span>
+      <span style="opacity:0.3" class="tok tok-neutral">AND password = '...' [ignored]</span>
+    </div>
+    <div class="explain">Attacker types: <code>admin'--</code>. The <code>--</code> is a SQL comment character — it tells the database to ignore everything after it. The entire password check is silently removed from the query.</div>
+    <div class="result-box result-danger">Result: Logs in as admin with no password at all. The password check was commented out.</div>
+  </div>
+
+  <div class="panel" id="p4">
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:#C0DD97"></div>Developer code</div>
+      <div class="leg"><div class="leg-dot" style="background:#F7C1C1"></div>Attacker input</div>
+      <div class="leg"><div class="leg-dot" style="background:#FAC775"></div>Injected UNION command</div>
+      <div class="leg"><div class="leg-dot" style="background:#CECBF6"></div>Comment</div>
+    </div>
+    <div class="code-row">
+      <span class="tok tok-dev">SELECT name, price FROM products WHERE name =</span>
+      <span class="tok tok-dev">'</span><span class="tok tok-evil">'</span>
+      <span class="tok tok-cmd">UNION SELECT username, password FROM users</span>
+      <span class="tok tok-comment">--</span>
+      <span style="opacity:0.3" class="tok tok-neutral">'</span>
+    </div>
+    <div class="explain">In a product search box, the attacker appends a <code>UNION SELECT</code> that pulls from a completely different table. The original query returns nothing (empty string), but the UNION appends all usernames and passwords to the result.</div>
+    <div class="result-box result-danger">Result: Page shows the entire users table — usernames, hashed passwords, emails — disguised as product search results.</div>
+  </div>
+</div>
+
+<script>
+function goStep(n){
+  document.querySelectorAll('.sn').forEach((el,i)=>el.classList.toggle('active',i===n));
+  document.querySelectorAll('.panel').forEach((el,i)=>el.classList.toggle('active',i===n));
+}
+</script>
