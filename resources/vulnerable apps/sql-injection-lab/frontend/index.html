@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Injection Learning Lab</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 SQL Injection Learning Lab</h1>
+            <p class="subtitle">Educational Platform for SQL Injection Detection & Prevention</p>
+        </header>
+
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab active" data-tab="login">Login</button>
+                <button class="tab" data-tab="register">Register</button>
+                <button class="tab" data-tab="analyzer">SQL Analyzer</button>
+                <button class="tab" data-tab="vulnerable">Vulnerable Demo</button>
+            </div>
+
+            <!-- Login Tab -->
+            <div class="tab-content active" id="login-tab">
+                <div class="card">
+                    <h2>Secure Login</h2>
+                    <p class="info">Protected by SQL Injection Detection</p>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="login-username">Username</label>
+                            <input type="text" id="login-username" placeholder="Enter username" autocomplete="off">
+                            <span class="hint">Try: admin</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="text" id="login-password" placeholder="Enter password">
+                            <span class="hint">Try: admin123!</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Register Tab -->
+            <div class="tab-content" id="register-tab">
+                <div class="card">
+                    <h2>User Registration</h2>
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label for="reg-username">Username</label>
+                            <input type="text" id="reg-username" placeholder="Choose username">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-password">Password</label>
+                            <input type="password" id="reg-password" placeholder="Choose password">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-age">Age</label>
+                            <input type="number" id="reg-age" placeholder="Your age">
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-date">Date of Join</label>
+                            <input type="date" id="reg-date">
+                        </div>
+                        <button type="submit" class="btn btn-success">Register</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Analyzer Tab -->
+            <div class="tab-content" id="analyzer-tab">
+                <div class="card">
+                    <h2>SQL Injection Analyzer</h2>
+                    <p>Test any input for SQL injection patterns</p>
+                    <div class="form-group">
+                        <label for="analyzer-input">Input to Analyze</label>
+                        <textarea id="analyzer-input" placeholder="Enter SQL injection payload or any text to analyze..." rows="4"></textarea>
+                    </div>
+                    <button id="analyze-btn" class="btn btn-info">Analyze Input</button>
+                    
+                    <div id="analysis-result" class="result-box" style="display: none;">
+                        <h3>Analysis Results</h3>
+                        <div id="analysis-content"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vulnerable Demo Tab -->
+            <div class="tab-content" id="vulnerable-tab">
+                <div class="card warning-card">
+                    <h2>⚠️ Vulnerable Login Demo</h2>
+                    <p class="warning">This endpoint is intentionally vulnerable for learning purposes</p>
+                    <form id="vulnerable-form">
+                        <div class="form-group">
+                            <label for="vuln-username">Username</label>
+                            <input type="text" id="vuln-username" placeholder="Try SQL injection payloads">
+                        </div>
+                        <div class="form-group">
+                            <label for="vuln-password">Password</label>
+                            <input type="text" id="vuln-password" placeholder="Try SQL injection payloads">
+                        </div>
+                        <button type="submit" class="btn btn-danger">Execute (Vulnerable)</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Result Display -->
+            <div id="result-container" class="result-container" style="display: none;">
+                <div class="card">
+                    <h3 id="result-title">Result</h3>
+                    <div id="result-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payload Examples -->
+        <div class="payload-examples">
+            <h3>🗂️ Common SQL Injection Payloads</h3>
+            <div class="payload-grid">
+                <div class="payload-item" data-payload="' OR '1'='1">
+                    <code>' OR '1'='1</code>
+                    <span>Auth Bypass</span>
+                </div>
+                <div class="payload-item" data-payload="' OR 1=1 --">
+                    <code>' OR 1=1 --</code>
+                    <span>Comment Bypass</span>
+                </div>
+                <div class="payload-item" data-payload="admin' --">
+                    <code>admin' --</code>
+                    <span>Admin Bypass</span>
+                </div>
+                <div class="payload-item" data-payload="' UNION SELECT NULL--">
+                    <code>' UNION SELECT ...</code>
+                    <span>Union Based</span>
+                </div>
+                <div class="payload-item" data-payload="' OR SLEEP(5)--">
+                    <code>' OR SLEEP(5)--</code>
+                    <span>Time Based</span>
+                </div>
+                <div class="payload-item" data-payload="'; DROP TABLE users; --">
+                    <code>'; DROP TABLE...</code>
+                    <span>Stacked Query</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
