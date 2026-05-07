@@ -1,3 +1,6 @@
+<img width="1055" height="1491" alt="SQL Notes for Professionals" src="https://github.com/user-attachments/assets/7632d0e3-ac2e-4f5c-a65c-89b7eb2049cb" />
+
+---
 *This comprehensive SQL guide covers essential concepts from basics to advanced topics. Regular practice and real-world application are key to mastering SQL. Keep this document as a reference for your database development journey.*
 
 
