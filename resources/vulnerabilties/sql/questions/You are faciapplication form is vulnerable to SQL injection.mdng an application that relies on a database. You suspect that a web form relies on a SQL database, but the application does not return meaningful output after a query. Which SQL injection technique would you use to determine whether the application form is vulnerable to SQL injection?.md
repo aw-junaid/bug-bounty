@@ -1,3 +1,5 @@
+### You are facing an application that relies on a database. You suspect that a web form relies on a SQL database, but the application does not return meaningful output after a query. Which SQL injection technique would you use to determine whether the application form is vulnerable to SQL injection?
+
 Given that the application returns **no meaningful output** after a query, you cannot rely on visual differences in the page content. You must use a technique where the signal is something else entirely.
 
 The correct technique in this scenario is **Time-Based Blind SQL Injection**.
