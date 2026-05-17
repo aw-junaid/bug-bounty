@@ -1,0 +1,470 @@
+/* Slack Clone - Minimal UI Styles */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #1a1d21;
+    color: #d1d2d3;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background: #19171d;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+.sidebar-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #522653;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.workspace-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.channel-list {
+    padding: 8px 0;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.channel-item {
+    padding: 6px 20px;
+    cursor: pointer;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    color: #d1d2d3;
+}
+
+.channel-item:hover,
+.channel-item.active {
+    background: #1164a3;
+    color: #fff;
+}
+
+.channel-item::before {
+    content: '# ';
+    opacity: 0.7;
+}
+
+/* Main chat area */
+.main {
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.chat-header {
+    padding: 12px 20px;
+    border-bottom: 1px solid #2c2d30;
+    background: #1a1d21;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.message {
+    display: flex;
+    margin-bottom: 16px;
+    align-items: flex-start;
+}
+
+.message-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    background: #1164a3;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.message-content .username {
+    font-weight: 700;
+    color: #fff;
+    margin-right: 8px;
+}
+
+.message-content .timestamp {
+    font-size: 12px;
+    color: #717274;
+}
+
+.message-content .text {
+    margin-top: 4px;
+    line-height: 1.5;
+}
+
+/* Input area */
+.input-area {
+    padding: 16px 20px;
+    border-top: 1px solid #2c2d30;
+}
+
+.message-input-wrapper {
+    border: 1px solid #565856;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    background: #222529;
+    padding: 8px 12px;
+}
+
+.message-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #d1d2d3;
+    font-size: 15px;
+    resize: none;
+}
+
+.send-btn {
+    background: #007a5a;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.send-btn:hover {
+    background: #148567;
+}
+
+/* Login page */
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 40px;
+    background: #222529;
+    border-radius: 8px;
+}
+
+.login-container h1 {
+    color: #fff;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #d1d2d3;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    background: #1a1d21;
+    border: 1px solid #565856;
+    border-radius: 4px;
+    color: #d1d2d3;
+    font-size: 15px;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    background: #007a5a;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #148567;
+}
+
+.error-message {
+    color: #e8912d;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+/* File upload */
+.upload-btn {
+    background: transparent;
+    border: none;
+    color: #717274;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 18px;
+}
+
+.upload-btn:hover {
+    color: #d1d2d3;
+}
+
+/* Sidebar section header with add-channel button */
+.sidebar-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px 4px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ababad;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.add-channel-btn {
+    background: transparent;
+    border: none;
+    color: #717274;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.add-channel-btn:hover {
+    color: #d1d2d3;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: #222529;
+    border-radius: 8px;
+    width: 480px;
+    max-width: 96vw;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 12px;
+    border-bottom: 1px solid #2c2d30;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    color: #717274;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.modal-close:hover {
+    color: #d1d2d3;
+}
+
+.modal-body {
+    padding: 20px 24px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 12px 24px 20px;
+    border-top: 1px solid #2c2d30;
+}
+
+.btn-secondary {
+    padding: 10px 16px;
+    background: transparent;
+    border: 1px solid #565856;
+    border-radius: 4px;
+    color: #d1d2d3;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: #2c2d30;
+}
+
+.modal-submit-btn {
+    width: auto;
+    padding: 10px 20px;
+}
+
+/* Chat header with search */
+.chat-header {
+    padding: 12px 20px;
+    border-bottom: 1px solid #2c2d30;
+    background: #1a1d21;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.search-toggle-btn {
+    background: transparent;
+    border: none;
+    color: #717274;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: auto;
+    padding: 4px 8px;
+}
+
+.search-toggle-btn:hover {
+    color: #d1d2d3;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    background: #1a1d21;
+}
+
+.search-input {
+    background: #2c2d30;
+    border: 1px solid #565856;
+    border-radius: 4px;
+    color: #d1d2d3;
+    font-size: 14px;
+    padding: 6px 10px;
+    outline: none;
+    width: 220px;
+}
+
+.search-btn {
+    background: transparent;
+    border: none;
+    color: #d1d2d3;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+}
+
+.search-close-btn {
+    background: transparent;
+    border: none;
+    color: #717274;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+}
+
+.search-close-btn:hover {
+    color: #d1d2d3;
+}
+
+/* Search results panel */
+.search-results {
+    background: #1a1d21;
+    border-bottom: 1px solid #2c2d30;
+    max-height: 280px;
+    overflow-y: auto;
+    padding: 12px 20px;
+}
+
+.search-result-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #2c2d30;
+    cursor: pointer;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background: #222529;
+    border-radius: 4px;
+    padding-left: 8px;
+}
+
+.search-result-item .username {
+    font-weight: 700;
+    color: #fff;
+    margin-right: 8px;
+}
+
+.search-result-item .timestamp {
+    font-size: 12px;
+    color: #717274;
+}
+
+.search-result-item .text {
+    margin-top: 4px;
+    font-size: 14px;
+}
+
+/* Inline file/image messages */
+.message-file-attachment {
+    display: block;
+    margin-top: 6px;
+}
+
+.message-file-attachment img {
+    max-width: 320px;
+    max-height: 240px;
+    border-radius: 4px;
+    display: block;
+    margin-top: 4px;
+}
+
+.message-file-attachment a {
+    color: #1d9bd1;
+    text-decoration: none;
+}
+
+.message-file-attachment a:hover {
+    text-decoration: underline;
+}

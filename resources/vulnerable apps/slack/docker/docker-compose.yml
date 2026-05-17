@@ -1,0 +1,75 @@
+version: '3.8'
+
+# VULN: Default weak passwords
+# VULN: No secrets management
+# VULN: Debug ports exposed to host
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    # VULN: Runs as root
+    # user: "root"
+    ports:
+      - "80:80"
+      - "8080:8080"   # WebSocket - VULN: Exposed on all interfaces
+      - "8081:8081"   # Debug/admin port - VULN: Should not be exposed
+    volumes:
+      - ../public/uploads:/var/www/html/public/uploads
+      - ../logs:/var/www/html/logs
+    environment:
+      # VULN: Credentials in docker-compose.yml (often committed to git)
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: root        # VULN: Weak password in environment variable
+      DB_NAME: slack_clone
+      JWT_SECRET: secret123  # VULN: Weak JWT secret in compose file
+      APP_ENV: production
+      # VULN: Debug mode in production
+      PHP_DISPLAY_ERRORS: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - slack-net
+
+  db:
+    image: mysql:8.0
+    environment:
+      # VULN: Default MySQL root password is weak
+      MYSQL_ROOT_PASSWORD: root       # VULN: Weak password
+      MYSQL_DATABASE: slack_clone
+      MYSQL_USER: slackuser
+      MYSQL_PASSWORD: slackpass       # VULN: Weak, hardcoded
+    ports:
+      # VULN: MySQL port exposed to host - should only be internal
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mysqladmin ping -h localhost -uroot --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - slack-net
+
+  # Optional Redis for pub/sub
+  redis:
+    image: redis:7
+    # VULN: No Redis password set
+    ports:
+      - "6379:6379"   # VULN: Redis exposed to host
+    networks:
+      - slack-net
+
+networks:
+  slack-net:
+    driver: bridge
+
+volumes:
+  db-data:

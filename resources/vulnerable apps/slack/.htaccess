@@ -1,0 +1,72 @@
+# VULNERABILITY SUMMARY FOR: .htaccess
+# =============================================================================
+#
+# [1] DIRECTORY LISTING ENABLED
+#     Type    : Security Misconfiguration (OWASP A05)
+#     CWE     : CWE-548 – Exposure of Information Through Directory Listing
+#     Detail  : "Options +Indexes" causes Apache to generate HTML directory
+#               listings for any directory that lacks an index file.  An attacker
+#               can browse /public/uploads/, /logs/, /config/, etc., and discover
+#               uploaded webshells, log files with session tokens, and config
+#               files containing database credentials.
+#
+# [2] PHP EXECUTION ALLOWED IN UPLOADS DIRECTORY
+#     Type    : Insecure Design (OWASP A04)
+#     CWE     : CWE-434 – Unrestricted Upload of File with Dangerous Type
+#     Detail  : There is no "php_flag engine off" or FilesMatch directive to
+#               disable PHP execution inside /public/uploads/.  Combined with the
+#               unrestricted upload vulnerability in file_handler.php, an attacker
+#               who uploads a .phtml or .php5 webshell can execute arbitrary
+#               operating system commands on the server.
+#
+# [3] NO ACCESS RESTRICTION ON /logs DIRECTORY
+#     Type    : Security Misconfiguration (OWASP A05)
+#     CWE     : CWE-200 – Exposure of Sensitive Information to an Unauthorized Actor
+#     Detail  : The /logs directory is reachable from the web with no Deny/Require
+#               directives.  Log files contain raw SQL queries (including user-
+#               supplied data), session tokens, and full WebSocket message payloads.
+#
+# [4] NO ACCESS RESTRICTION ON /config DIRECTORY
+#     Type    : Security Misconfiguration (OWASP A05)
+#     CWE     : CWE-200
+#     Detail  : The /config directory (containing database credentials, JWT secret,
+#               and encryption keys) is potentially accessible if the web server
+#               is misconfigured to serve .php files as plaintext, or if a backup
+#               file (.php~, .php.bak) is present.
+#
+# [5] MISSING SECURITY RESPONSE HEADERS
+#     Type    : Security Misconfiguration (OWASP A05)
+#     CWE     : CWE-16 – Configuration
+#     Detail  : No security headers are set: X-Frame-Options (clickjacking),
+#               X-Content-Type-Options (MIME sniffing), Content-Security-Policy
+#               (XSS), Strict-Transport-Security (HTTPS enforcement), or
+#               Referrer-Policy.  Each missing header enables a distinct class of
+#               client-side attack.
+#
+# =============================================================================
+# VULN: Directory listing enabled for /uploads
+# VULN: PHP execution not disabled in uploads directory
+# VULN: No access restrictions on /logs
+
+Options +Indexes
+
+# VULN: Should have Options -Indexes to disable directory listing
+# VULN: Should have php_flag engine off in /public/uploads
+
+RewriteEngine On
+
+# Route all requests through index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# VULN: No restriction on accessing /logs directory
+# VULN: No restriction on accessing /config directory
+# VULN: /api/internal not protected
+
+# VULN: Missing security headers (should be set here or in nginx config):
+# Header always set X-Frame-Options SAMEORIGIN
+# Header always set X-Content-Type-Options nosniff
+# Header always set X-XSS-Protection "1; mode=block"
+# Header always set Content-Security-Policy "default-src 'self'"
+# Header always set Strict-Transport-Security "max-age=31536000"

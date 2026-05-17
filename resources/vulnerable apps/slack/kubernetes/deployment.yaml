@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slack-clone
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: slack-clone
+  template:
+    metadata:
+      labels:
+        app: slack-clone
+    spec:
+      # VULN: No PodSecurityContext - runs as root
+      containers:
+        - name: slack-clone
+          image: slack-clone:latest
+          # VULN: Privileged container - full host access
+          securityContext:
+            privileged: true           # VULN: Container escape possible
+            runAsUser: 0               # VULN: Runs as root
+            allowPrivilegeEscalation: true  # VULN
+          ports:
+            - containerPort: 80
+            - containerPort: 8080
+            - containerPort: 8081
+          env:
+            # VULN: Secrets in Deployment spec, not using K8s Secrets
+            - name: DB_PASS
+              value: "root"            # VULN: Plaintext password
+            - name: JWT_SECRET
+              value: "secret123"       # VULN: Plaintext secret
+          resources:
+            # VULN: No resource limits - DoS via resource exhaustion
+            requests: {}
+            limits: {}
+          volumeMounts:
+            - name: uploads
+              mountPath: /var/www/html/public/uploads
+            - name: logs
+              mountPath: /var/www/html/logs
+      volumes:
+        - name: uploads
+          # VULN: hostPath volume - container can write to host filesystem
+          hostPath:
+            path: /tmp/slack-uploads
+            type: DirectoryOrCreate
+        - name: logs
+          hostPath:
+            path: /tmp/slack-logs
+            type: DirectoryOrCreate
