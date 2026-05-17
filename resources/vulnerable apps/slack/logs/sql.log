@@ -1,0 +1,4 @@
+# Slack Clone SQL Query Log
+# VULN: Every SQL query including data logged here
+# VULN: Contains PII, passwords (MD5), session tokens in queries
+# VULN: World-readable

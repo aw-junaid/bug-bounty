@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: slack-clone-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # VULN: No TLS configured - all traffic over HTTP
+    # VULN: Missing security annotations
+    # VULN: No rate limiting annotation
+    # VULN: CORS wildcard via annotation
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"        # VULN
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true" # VULN: With wildcard origin
+    # WebSocket upgrade support
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      # VULN: Exposes server version in headers
+      more_set_headers "X-Powered-By: PHP/8.2";
+      # VULN: No security headers added
+spec:
+  # VULN: No TLS section - plaintext HTTP only
+  rules:
+    - host: slack.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: slack-clone-service
+                port:
+                  number: 80
+          # VULN: Internal API exposed via Ingress
+          - path: /api/internal
+            pathType: Prefix
+            backend:
+              service:
+                name: slack-clone-service
+                port:
+                  number: 80

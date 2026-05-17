@@ -1,0 +1,3 @@
+# Slack Clone Error Log
+# VULN: Stack traces exposed - reveals file paths, line numbers, DB structure
+# VULN: World-readable

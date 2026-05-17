@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: slack-clone-service
+  namespace: default
+spec:
+  selector:
+    app: slack-clone
+  # VULN: NodePort exposes service on every node's IP at a static port
+  # VULN: Should use ClusterIP for internal services with Ingress for external
+  type: NodePort
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      # VULN: Fixed NodePort - predictable, easier to scan
+      nodePort: 30080
+    - name: websocket
+      port: 8080
+      targetPort: 8080
+      nodePort: 30808   # VULN: WebSocket port exposed externally
+    - name: debug
+      port: 8081
+      targetPort: 8081
+      nodePort: 30081   # VULN: Debug/admin port exposed externally

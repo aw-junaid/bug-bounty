@@ -1,0 +1,12 @@
+# Slack Clone Application Log
+# VULN: World-readable log file under web root
+# VULN: Contains user activity, IP addresses, tokens
+[2026-05-17 05:01:19] [INFO] [IP:172.18.0.1] [User:admin] User logged in: admin
+[2026-05-17 05:01:29] [INFO] [IP:172.18.0.1] [User:anonymous] Failed login attempt for: root
+[2026-05-17 05:02:22] [INFO] [IP:172.18.0.1] [User:anonymous] New user registered: logger (logger@gmai.com)
+[2026-05-17 05:02:52] [INFO] [IP:172.18.0.1] [User:logger] User logged in: logger
+[2026-05-17 05:03:14] [INFO] [IP:172.18.0.1] [User:logger] User logged in: logger
+[2026-05-17 05:03:28] [INFO] [IP:172.18.0.1] [User:anonymous] Failed login attempt for: logger
+[2026-05-17 05:03:33] [INFO] [IP:172.18.0.1] [User:logger] User logged in: logger
+[2026-05-17 05:04:03] [INFO] [IP:172.18.0.1] [User:anonymous] Failed login attempt for: alice
+[2026-05-17 05:06:06] [INFO] [IP:172.18.0.1] [User:admin] User logged in: admin

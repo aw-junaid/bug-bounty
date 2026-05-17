@@ -1,0 +1,47 @@
+# Slack Clone WebSocket Log
+# VULN: Contains full WebSocket message payloads
+# VULN: Auth tokens logged in plaintext
+# VULN: World-readable
+[2026-05-17 05:00:49] [WS] [IP:unknown] [User:anonymous] WebSocket server starting on 0.0.0.0:8080
+
+Deprecated: Creation of dynamic property React\Socket\Connection::$decor is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Server/IoServer.php on line 83
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$resourceId is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Server/IoServer.php on line 84
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$remoteAddress is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Server/IoServer.php on line 87
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$httpHeadersReceived is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Http/HttpServer.php on line 33
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$httpBuffer is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Http/HttpRequestParser.php on line 30
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$httpRequest is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/WebSocket/WsServer.php on line 112
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$WebSocket is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/WebSocket/WsServer.php on line 114
+
+Deprecated: Creation of dynamic property React\Socket\Connection::$decor is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Server/IoServer.php on line 83
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$resourceId is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Server/IoServer.php on line 84
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$remoteAddress is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Server/IoServer.php on line 87
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$httpHeadersReceived is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Http/HttpServer.php on line 33
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$httpBuffer is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Http/HttpRequestParser.php on line 30
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$httpRequest is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/WebSocket/WsServer.php on line 112
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$WebSocket is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/WebSocket/WsServer.php on line 114
+
+Deprecated: Creation of dynamic property React\Socket\Connection::$decor is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Server/IoServer.php on line 83
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$resourceId is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Server/IoServer.php on line 84
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$remoteAddress is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Server/IoServer.php on line 87
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$httpHeadersReceived is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Http/HttpServer.php on line 33
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$httpBuffer is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/Http/HttpRequestParser.php on line 30
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$httpRequest is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/WebSocket/WsServer.php on line 112
+
+Deprecated: Creation of dynamic property Ratchet\Server\IoConnection::$WebSocket is deprecated in /var/www/html/vendor/cboden/ratchet/src/Ratchet/WebSocket/WsServer.php on line 114
