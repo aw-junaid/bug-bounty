@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>awjunaid | CIDR ↔ IP Range Converter — Summarize, Exclude & Export</title>
+
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/aw-junaid/aw-junaid/refs/heads/main/awjunaid.png" />
+<meta name="description" content="Free CIDR to IP range converter and back. Batch-convert CIDR blocks to start-end ranges (and ranges to minimal CIDR blocks), auto-merge/supernet overlapping entries, subtract excluded subnets from an allow-list, detect overlapping rules, and export ready-to-paste iptables, nftables, Cisco ACL, AWS Security Group, Nginx, and pfSense config. IPv4 + IPv6, 100% client-side." />
+<meta name="author" content="Abdul Wahab Junaid" />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://aw-junaid.github.io/tools/cidr-range-converter.html" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://aw-junaid.github.io/tools/cidr-range-converter.html" />
+<meta property="og:title" content="CIDR ↔ IP Range Converter — awjunaid" />
+<meta property="og:description" content="Convert CIDR blocks to IP ranges and back, merge/supernet overlapping entries, subtract excluded subnets, detect overlapping firewall rules, and export iptables, nftables, Cisco ACL, AWS SG, Nginx, and pfSense config. Free, client-side, no signup." />
+<meta property="og:image" content="https://raw.githubusercontent.com/aw-junaid/aw-junaid.github.io/refs/heads/main/images/social-preview/cidr-range-converter.png" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="CIDR ↔ IP Range Converter — awjunaid" />
+<meta name="twitter:description" content="Batch CIDR↔range conversion, supernetting, exclude/subtract, overlap detection, and firewall config export (iptables, nftables, Cisco ACL, AWS SG, Nginx, pfSense) — free and client-side." />
+<meta name="twitter:image" content="https://raw.githubusercontent.com/aw-junaid/aw-junaid.github.io/refs/heads/main/images/social-preview/cidr-range-converter.png" />
+
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800&family=Poppins:wght@300;400;600&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ============================================
+           THEME VARIABLES & GLOBAL STYLES (Black & White)
+           ============================================ */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-color: #ffffff;
+            --text-primary: #000000;
+            --text-secondary: #333333;
+            --text-color: #000000;
+            --border-color: #000000;
+            --border-light: #e0e0e0;
+            --input-bg: #ffffff;
+            --hover-bg: #000000;
+            --hover-text: #ffffff;
+            --font-header: 'League Spartan', sans-serif;
+            --font-body: 'Poppins', sans-serif;
+            --font-inter: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --code-bg: #f4f4f4;
+            --note-bg: #fff9c4;
+            --content-width: 1280px;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --warn: #f59e0b;
+        }
+        body.dark-mode {
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --bg-color: #000000;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --text-color: #ffffff;
+            --border-color: #ffffff;
+            --border-light: #2a2a2a;
+            --input-bg: #111111;
+            --hover-bg: #ffffff;
+            --hover-text: #000000;
+            --code-bg: #111111;
+            --note-bg: #1e1e00;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+        a { color: var(--text-color); text-decoration: none; transition: all 0.2s ease; }
+        .container { max-width: var(--content-width); margin: 0 auto; width: 100%; padding: 0 24px; }
+
+        /* ============================================
+           HEADER & NAVIGATION (Preserved)
+           ============================================ */
+        header {
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 0;
+            width: 100%;
+            z-index: 1000;
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-color);
+            transition: all 0.3s ease;
+        }
+        header .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .logo a { font-family: var(--font-header); font-size: clamp(18px, 5vw, 26px); font-weight: 800; text-transform: lowercase; letter-spacing: -1px; transition: opacity 0.2s; }
+        .logo a:hover { opacity: 0.7; }
+        .header-right { display: flex; align-items: center; gap: clamp(12px, 2vw, 24px); flex-wrap: wrap; }
+        nav.main-nav { display: flex; gap: clamp(16px, 2.5vw, 24px); font-weight: 600; font-size: 14px; flex-wrap: wrap; }
+        nav.main-nav a { position: relative; letter-spacing: -0.2px; }
+        nav.main-nav a:hover { opacity: 0.65; }
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-content {
+            display: none; position: absolute; background-color: var(--bg-color); min-width: 200px;
+            border: 1px solid var(--border-color); z-index: 100; top: 100%; left: 0;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+        }
+        body.dark-mode .dropdown-content { box-shadow: 0 6px 12px rgba(255,255,255,0.08); }
+        .dropdown-content a { padding: 12px 16px; display: block; border-bottom: 1px solid var(--border-color); font-size: 13px; font-weight: 500; }
+        .dropdown-content a:last-child { border-bottom: none; }
+        .dropdown-content a:hover { background-color: var(--hover-bg); color: var(--hover-text); padding-left: 20px; }
+        .dropdown:hover .dropdown-content { display: block; }
+        .social-icons { display: flex; gap: 8px; font-size: 18px; align-items: center; }
+        .social-icons a { display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; opacity: 0.8; }
+        .social-icons a:hover { transform: translateY(-2px); opacity: 1; }
+        .theme-switcher {
+            background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color);
+            padding: 6px 14px; cursor: pointer; font-family: var(--font-header); font-weight: 700;
+            text-transform: uppercase; font-size: 11px; transition: all 0.2s; border-radius: 30px; white-space: nowrap;
+        }
+        .theme-switcher:hover { background-color: var(--hover-bg); color: var(--hover-text); }
+
+        /* ============================================
+           TOOL HERO
+           ============================================ */
+        .tool-hero {
+            margin: 48px 0 32px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 28px;
+        }
+        .tool-eyebrow {
+            font-size: 12px; letter-spacing: 3px; text-transform: uppercase; font-weight: 800;
+            margin-bottom: 16px; border-left: 4px solid var(--border-color); padding-left: 12px;
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        }
+        .tool-title {
+            font-family: var(--font-inter); font-size: clamp(32px, 7vw, 52px); font-weight: 900;
+            line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 20px;
+        }
+        .tool-dek {
+            font-size: 1.05rem; line-height: 1.6; opacity: 0.8; max-width: 640px;
+            border-left: 2px solid var(--border-color); padding-left: 20px;
+        }
+
+        /* ============================================
+           PRESET / CONFIG BAR
+           ============================================ */
+        .preset-bar {
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+            border: 1px solid var(--border-light); border-radius: 20px; padding: 14px 20px; margin: 32px 0 0;
+        }
+        .preset-bar label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.65; }
+        .preset-bar select {
+            padding: 9px 14px; border-radius: 60px; border: 1px solid var(--border-light);
+            background: var(--input-bg); color: var(--text-primary); font-family: var(--font-body); font-size: 12.5px; font-weight: 600;
+        }
+        .preset-bar .spacer { flex: 1; }
+        .preset-bar .btn-ghost { padding: 8px 16px; }
+
+        /* ============================================
+           SETTINGS PANEL
+           ============================================ */
+        .settings-card {
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 26px 26px 8px;
+            margin: 16px 0 32px;
+        }
+        .settings-section { margin-bottom: 22px; }
+        .settings-section h4 {
+            font-family: var(--font-header); font-size: 11.5px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1.2px; opacity: 0.55; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);
+        }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px 20px;
+        }
+        .setting-toggle {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .setting-toggle input[type="checkbox"] {
+            width: 17px; height: 17px; accent-color: var(--text-primary); cursor: pointer; margin-top: 1px; flex-shrink: 0;
+        }
+        .setting-toggle .setting-name { font-weight: 600; }
+        .setting-toggle .setting-hint { display: block; font-size: 11px; opacity: 0.55; font-weight: 400; margin-top: 2px; }
+
+        .field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px 20px; margin-top: 4px; }
+        .field-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.6; margin-bottom: 6px; }
+        .field-group input[type="text"], .field-group input[type="number"], .field-group select {
+            width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border-light);
+            background: var(--input-bg); color: var(--text-primary); font-family: var(--font-body); font-size: 13px;
+        }
+        .field-group.full-width { grid-column: 1 / -1; }
+        .radio-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 4px; }
+        .radio-opt { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+        .radio-opt input[type="radio"] { accent-color: var(--text-primary); cursor: pointer; }
+
+        /* ============================================
+           EDITOR / OUTPUT LAYOUT
+           ============================================ */
+        .tool-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 0 0 24px;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .tool-layout { grid-template-columns: 1fr; }
+        }
+
+        .panel-card {
+            background: var(--code-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 24px;
+            padding: 24px;
+        }
+        .panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .panel-head h3 {
+            font-family: var(--font-inter);
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+        .panel-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .btn-ghost, .btn-solid {
+            border-radius: 60px;
+            padding: 9px 18px;
+            font-weight: 700;
+            font-family: var(--font-header);
+            text-transform: uppercase;
+            font-size: 10.5px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--border-color);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .btn-ghost { background: transparent; color: var(--text-color); }
+        .btn-ghost:hover { background: var(--hover-bg); color: var(--hover-text); }
+        .btn-solid { background: var(--text-primary); color: var(--bg-primary); }
+        .btn-solid:hover { opacity: 0.85; transform: translateY(-2px); }
+        .btn-ghost:disabled, .btn-solid:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-ghost.small, .btn-solid.small { padding: 7px 14px; font-size: 10px; }
+
+        #ipInput, #excludeInput {
+            width: 100%;
+            min-height: 160px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 18px 20px;
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+            font-size: 13.5px;
+            line-height: 1.7;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+        #excludeInput { min-height: 100px; }
+        #ipInput:focus, #excludeInput:focus { outline: none; border-color: var(--border-color); }
+
+        .input-hint { font-size: 11px; opacity: 0.55; margin-top: 10px; line-height: 1.6; }
+        .input-hint code { font-family: var(--font-mono); background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 4px; padding: 1px 5px; }
+
+        .error-box {
+            border: 1px solid var(--danger); color: var(--danger); border-radius: 12px; padding: 10px 14px;
+            font-size: 12.5px; font-weight: 600; margin-top: 12px; display: none;
+        }
+        .error-box.show { display: block; }
+
+        .exclude-toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+        #excludeWrap { display: none; margin-top: 14px; }
+        #excludeWrap.show { display: block; }
+
+        /* Output tabs */
+        .output-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+        .output-tab {
+            border: 1px solid var(--border-light);
+            border-radius: 60px;
+            padding: 8px 16px;
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-color);
+            font-family: var(--font-header);
+            transition: all 0.2s;
+        }
+        .output-tab.active { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
+
+        .output-pane { display: none; min-height: 380px; }
+        .output-pane.active { display: block; }
+
+        .kv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .kv-table tr { border-bottom: 1px solid var(--border-light); }
+        .kv-table tr:last-child { border-bottom: none; }
+        .kv-table td { padding: 9px 4px; vertical-align: top; }
+        .kv-table td.k { font-weight: 700; opacity: 0.6; width: 42%; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.4px; padding-top: 11px; }
+        .kv-table td.v { font-family: var(--font-mono); font-size: 13px; word-break: break-all; }
+
+        .badge {
+            display: inline-block; border: 1px solid var(--border-color); border-radius: 30px; padding: 3px 12px;
+            font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge.public { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .badge.private { background: var(--warn); color: #000; border-color: var(--warn); }
+        .badge.invalid { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+        .mono-box {
+            font-family: var(--font-mono); font-size: 12.5px; background: var(--input-bg); border: 1px solid var(--border-light);
+            border-radius: 10px; padding: 12px 14px; line-height: 1.7; word-break: break-all; white-space: pre-wrap;
+        }
+
+        .empty-pane { font-size: 13px; opacity: 0.5; padding: 40px 10px; text-align: center; }
+        .stat-line { font-size: 11.5px; opacity: 0.6; margin-bottom: 10px; }
+        .stat-line strong { opacity: 1; }
+
+        table.data-table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: var(--font-mono); }
+        table.data-table th { text-align: left; font-family: var(--font-body); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.6; padding: 8px 8px; border-bottom: 2px solid var(--border-color); white-space: nowrap; }
+        table.data-table td { padding: 7px 8px; border-bottom: 1px solid var(--border-light); word-break: break-all; }
+        .table-scroll { max-height: 420px; overflow: auto; border: 1px solid var(--border-light); border-radius: 12px; }
+
+        .export-block { margin-bottom: 18px; }
+        .export-block .export-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.6; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .export-block .export-label button { font-size: 9.5px; padding: 4px 10px; }
+
+        /* Utility tools */
+        .utility-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px; }
+        @media (max-width: 1000px) { .utility-grid { grid-template-columns: 1fr; } }
+        .utility-card { border: 1px solid var(--border-light); border-radius: 24px; padding: 24px; }
+        .utility-card h3 { font-family: var(--font-inter); font-size: 1.05rem; font-weight: 800; margin-bottom: 6px; }
+        .utility-card .utility-note { font-size: 11.5px; opacity: 0.6; margin-bottom: 16px; line-height: 1.55; }
+        .utility-card .field-group { margin-bottom: 12px; }
+        .utility-result { margin-top: 14px; font-size: 13px; }
+        .net-warning {
+            border: 1px solid var(--warn); border-radius: 10px; padding: 8px 12px; font-size: 11.5px; margin-top: 10px;
+            display: flex; gap: 8px; align-items: flex-start; line-height: 1.5;
+        }
+        .net-warning i { margin-top: 2px; }
+
+        .stat-strip {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+            font-size: 12px;
+            opacity: 0.75;
+        }
+        .stat-strip strong { opacity: 1; }
+
+        /* FAQ strip */
+        .faq-section { margin: 48px 0 56px; }
+        .section-heading {
+            font-family: var(--font-header); font-size: 26px; font-weight: 800; text-transform: uppercase;
+            margin-bottom: 24px; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; letter-spacing: -0.5px;
+        }
+        .faq-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        @media (max-width: 700px) { .faq-grid { grid-template-columns: 1fr; } }
+        .faq-item {
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 20px 22px;
+        }
+        .faq-item h4 { font-size: 0.95rem; font-weight: 800; margin-bottom: 8px; }
+        .faq-item p { font-size: 0.85rem; opacity: 0.75; line-height: 1.55; }
+
+        /* ============================================
+           FOOTER (Preserved)
+           ============================================ */
+        .email-signup {
+            background: var(--bg-secondary); padding: 2.8rem 2rem; border-radius: 32px; text-align: center;
+            margin: 48px 0 40px; border: 1px solid var(--border-light);
+        }
+        .signup-form { display: flex; gap: 12px; max-width: 500px; margin: 0 auto; flex-wrap: wrap; justify-content: center; }
+        .signup-form input {
+            flex: 1; min-width: 200px; padding: 14px 20px; border-radius: 60px; border: 1px solid var(--border-light);
+            background: var(--input-bg); color: var(--text-primary); font-family: var(--font-body);
+        }
+        .signup-form button {
+            background: var(--text-primary); color: var(--bg-primary); border: none; padding: 14px 32px;
+            border-radius: 60px; font-weight: 700; font-family: var(--font-header); cursor: pointer; transition: all 0.2s;
+        }
+        footer { border-top: 1px solid var(--border-color); width: 100%; margin-top: auto; padding: 40px 0 30px; }
+        .footer-middle {
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;
+            padding: 20px 0; border-top: 1px solid var(--border-light);
+        }
+        .footer-links { display: flex; gap: 24px; font-weight: 600; font-size: 12px; }
+        .footer-bottom { text-align: center; padding: 20px 0 0; border-top: 1px solid var(--border-light); font-size: 11px; }
+        @media (max-width: 768px) {
+            .footer-middle { flex-direction: column; text-align: center; }
+            .signup-form { flex-direction: column; }
+        }
+
+        /* ============================================
+           MOBILE / TABLET REFINEMENTS
+           ============================================ */
+        @media (max-width: 900px) {
+            .settings-card { padding: 20px 18px 4px; border-radius: 18px; }
+            .panel-card, .utility-card { padding: 18px; border-radius: 18px; }
+            #ipInput, #excludeInput { min-height: 140px; }
+            .panel-head { flex-direction: column; align-items: flex-start; }
+            .panel-actions button { flex: 1 1 auto; }
+        }
+        @media (max-width: 600px) {
+            header .container { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .header-right { width: 100%; justify-content: space-between; }
+            nav.main-nav { width: 100%; gap: 14px; font-size: 13px; }
+            .social-icons { display: none; }
+            .preset-bar { flex-direction: column; align-items: stretch; }
+            .preset-bar .spacer { display: none; }
+            .preset-bar select { width: 100%; }
+            .output-tab { flex: 1 1 calc(50% - 4px); text-align: center; }
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="https://aw-junaid.github.io/" title="awjunaid - Cyber Security & Tech Magazine">awjunaid</a>
+            </div>
+            <div class="header-right">
+                <nav class="main-nav">
+                    <a href="https://aw-junaid.github.io/">Home</a>
+                    <a href="https://aw-junaid.github.io/page/blog.html">Blog</a>
+                    <a href="https://aw-junaid.github.io/page/membership.html">Membership</a>
+                    <div class="dropdown">
+                        <a href="#">Categories <i class="fa-solid fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="https://aw-junaid.github.io/posts/cyber-security.html">Cyber Security</a>
+                            <a href="https://aw-junaid.github.io/posts/linux.html">Linux</a>
+                            <a href="https://aw-junaid.github.io/posts/networking.html">Networking</a>
+                            <a href="https://aw-junaid.github.io/posts/kali-linux.html">Kali Linux</a>
+                            <a href="https://aw-junaid.github.io/posts/hardware.html">Hardware</a>
+                        </div>
+                    </div>
+                </nav>
+                <div class="social-icons">
+                    <a href="https://github.com/aw-junaid/" target="_blank"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://x.com/awjunaid_" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="https://www.linkedin.com/in/aw-junaid/" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://www.youtube.com/@awjunaid/featured" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="https://www.facebook.com/awjuna1d" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="https://instagram.com/awjunaid_" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+                <button class="theme-switcher" onclick="toggleTheme()">Invert</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Tool Hero -->
+            <div class="tool-hero">
+                <div class="tool-eyebrow">// FREE TOOL</div>
+                <h1 class="tool-title">CIDR ↔ IP Range Converter</h1>
+                <div class="tool-dek">Paste CIDR blocks, address ranges, or single IPs — one per line — to convert between notations instantly. Auto-merge overlapping or adjacent entries into the smallest possible CIDR set (supernetting), subtract excluded subnets from an allow-list, flag overlapping or conflicting rules before you deploy them, and export ready-to-paste iptables, nftables, Cisco ACL, AWS Security Group, Nginx, and pfSense config. IPv4 + IPv6, entirely in your browser.</div>
+            </div>
+
+            <!-- Preset bar -->
+            <div class="preset-bar">
+                <label for="presetSelect">Preset</label>
+                <select id="presetSelect">
+                    <option value="custom">Custom</option>
+                    <option value="quick">Quick Convert</option>
+                    <option value="acl-audit">Firewall / ACL Audit</option>
+                    <option value="summarize">Supernet / Summarize</option>
+                    <option value="allowlist">Allow-List Builder (with Exclusions)</option>
+                    <option value="export">Config Export</option>
+                </select>
+                <div class="spacer"></div>
+                <button class="btn-ghost" id="savePresetBtn" type="button"><i class="fa-solid fa-floppy-disk"></i> Save Preset</button>
+                <button class="btn-ghost" id="exportSettingsBtn" type="button"><i class="fa-solid fa-file-export"></i> Export Config</button>
+                <button class="btn-ghost" id="importSettingsBtn" type="button"><i class="fa-solid fa-file-import"></i> Import Config</button>
+                <input type="file" id="importSettingsInput" accept="application/json" style="display:none;">
+            </div>
+
+            <!-- Settings -->
+            <div class="settings-card">
+                <div class="settings-section">
+                    <h4>Input & Parsing</h4>
+                    <div class="settings-grid">
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optStrictValidation">
+                            <span><span class="setting-name">Strict octet validation</span><span class="setting-hint">Rejects IPv4 octets with leading zeros, e.g. "192.168.001.1"</span></span>
+                        </label>
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optAssumeDefaultPrefix" checked>
+                            <span><span class="setting-name">Assume default prefix for bare IPs</span><span class="setting-hint">A plain IP with no "/prefix" is treated as a single host using the prefix below</span></span>
+                        </label>
+                    </div>
+                    <div class="field-row">
+                        <div class="field-group">
+                            <label for="defaultPrefixInput">Default IPv4 prefix</label>
+                            <input type="number" id="defaultPrefixInput" min="0" max="32" value="32">
+                        </div>
+                        <div class="field-group">
+                            <label for="defaultPrefix6Input">Default IPv6 prefix</label>
+                            <input type="number" id="defaultPrefix6Input" min="0" max="128" value="128">
+                        </div>
+                        <div class="field-group full-width">
+                            <label>Interpret ambiguous lines as</label>
+                            <div class="radio-row">
+                                <label class="radio-opt"><input type="radio" name="interpretMode" value="auto" checked> Auto-detect (CIDR / range / single IP)</label>
+                                <label class="radio-opt"><input type="radio" name="interpretMode" value="cidr"> Force CIDR only</label>
+                                <label class="radio-opt"><input type="radio" name="interpretMode" value="range"> Force range only</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>Range Output Format</h4>
+                    <div class="settings-grid">
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optShowDashRange" checked>
+                            <span><span class="setting-name">Dash range</span><span class="setting-hint">First – last address, e.g. 10.0.0.0 – 10.0.0.255</span></span>
+                        </label>
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optShowNmapRange" checked>
+                            <span><span class="setting-name">Nmap-style short range</span><span class="setting-hint">IPv4 only, when only the last octet varies, e.g. 10.0.0.1-254</span></span>
+                        </label>
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optShowDecimalRange">
+                            <span><span class="setting-name">Decimal integer range</span><span class="setting-hint">Start and end as unsigned integers</span></span>
+                        </label>
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optShowHexRange">
+                            <span><span class="setting-name">Hex range</span><span class="setting-hint">Start and end as hexadecimal integers</span></span>
+                        </label>
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optUppercaseHex">
+                            <span><span class="setting-name">Uppercase hex / IPv6</span><span class="setting-hint">Applies to hex ranges and IPv6 address formatting</span></span>
+                        </label>
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optShowWildcard" checked>
+                            <span><span class="setting-name">Show wildcard mask</span><span class="setting-hint">IPv4 CIDR blocks — the inverse of the subnet mask, as used in Cisco ACLs</span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>Batch, Merge & Summarize</h4>
+                    <div class="settings-grid">
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optAutoMerge" checked>
+                            <span><span class="setting-name">Auto-merge overlapping / adjacent entries</span><span class="setting-hint">Supernets the whole batch into the smallest possible interval set before converting</span></span>
+                        </label>
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optDetectOverlaps" checked>
+                            <span><span class="setting-name">Detect overlapping entries</span><span class="setting-hint">Flags pairs of input lines whose ranges intersect — catches duplicate or conflicting rules</span></span>
+                        </label>
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optMixedVersions" checked>
+                            <span><span class="setting-name">Allow mixed IPv4 & IPv6 in one batch</span><span class="setting-hint">Off: only the first line's IP version is processed</span></span>
+                        </label>
+                    </div>
+                    <div class="field-row" style="margin-top:14px;">
+                        <div class="field-group">
+                            <label for="maxBlocksInput">Max CIDR blocks per entry</label>
+                            <input type="number" id="maxBlocksInput" min="1" max="4096" value="256">
+                        </div>
+                        <div class="field-group">
+                            <label for="maxRowsInput">Max batch rows to render</label>
+                            <input type="number" id="maxRowsInput" min="1" max="4096" value="500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>Exclude / Subtract</h4>
+                    <div class="exclude-toggle-row">
+                        <label class="setting-toggle" style="margin:0;">
+                            <input type="checkbox" id="optEnableExclude">
+                            <span><span class="setting-name">Enable exclude mode</span><span class="setting-hint">Subtract a second list of subnets/IPs from the main input before producing the final CIDR set — e.g. "allow this /16 except these three hosts"</span></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>Firewall / Config Export</h4>
+                    <div class="settings-grid">
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optExportIptables" checked>
+                            <span><span class="setting-name">iptables / ip6tables</span><span class="setting-hint">One ACCEPT rule per resulting block</span></span>
+                        </label>
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optExportNftables" checked>
+                            <span><span class="setting-name">nftables</span><span class="setting-hint">A single set-based accept rule per IP version</span></span>
+                        </label>
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optExportCisco" checked>
+                            <span><span class="setting-name">Cisco extended ACL</span><span class="setting-hint">IPv4 only — network + wildcard mask, "permit ip ... any"</span></span>
+                        </label>
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optExportAwsSg">
+                            <span><span class="setting-name">AWS Security Group</span><span class="setting-hint">JSON-style CidrIp array for a security group rule</span></span>
+                        </label>
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optExportNginx">
+                            <span><span class="setting-name">Nginx allow list</span><span class="setting-hint">"allow CIDR;" per block, plus a trailing "deny all;"</span></span>
+                        </label>
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="optExportPfsense">
+                            <span><span class="setting-name">pfSense / OPNsense alias</span><span class="setting-hint">Newline-separated CIDR list for a Network alias</span></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editor / Output Layout -->
+            <div class="tool-layout">
+                <div class="panel-card">
+                    <div class="panel-head">
+                        <h3>CIDR / Range / IP Input</h3>
+                        <div class="panel-actions">
+                            <button class="btn-ghost" id="clearBtn" type="button"><i class="fa-solid fa-xmark"></i> Clear</button>
+                        </div>
+                    </div>
+                    <textarea id="ipInput" spellcheck="false" placeholder="10.0.0.0/24
+192.168.1.10
+203.0.113.5-203.0.113.20
+2001:db8::/48"></textarea>
+                    <div class="input-hint">One entry per line. Accepts a CIDR block (<code>10.0.0.0/24</code>), a dash range (<code>203.0.113.5-203.0.113.20</code>), or a plain address (<code>192.168.1.10</code>, treated as a single host). IPv4 and IPv6 can be mixed unless disabled above.</div>
+                    <div class="error-box" id="errorBox"></div>
+                    <div class="stat-strip">
+                        <span><strong id="lineCount">0</strong> line(s)</span>
+                        <span><strong id="validCount">0</strong> valid</span>
+                        <span><strong id="mergedCount">0</strong> after merge</span>
+                    </div>
+
+                    <div id="excludeWrap">
+                        <div class="panel-head" style="margin-top:20px;">
+                            <h3 style="font-size:1rem;">Exclude / Subtract List</h3>
+                        </div>
+                        <textarea id="excludeInput" spellcheck="false" placeholder="10.0.0.5
+10.0.0.128/28"></textarea>
+                        <div class="input-hint">Same syntax as above. Every address/block here is removed from the main input's resulting range before the final CIDR set is computed.</div>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-head">
+                        <h3>Output</h3>
+                        <div class="panel-actions">
+                            <button class="btn-ghost" id="copyJsonBtn" type="button"><i class="fa-solid fa-copy"></i> Copy JSON</button>
+                            <button class="btn-solid" id="downloadCsvBtn" type="button"><i class="fa-solid fa-download"></i> Download CSV</button>
+                        </div>
+                    </div>
+                    <div class="output-tabs">
+                        <button class="output-tab active" data-tab="summary" type="button">Summary</button>
+                        <button class="output-tab" data-tab="batch" type="button">Batch Table</button>
+                        <button class="output-tab" data-tab="merged" type="button">Merged / Summarized</button>
+                        <button class="output-tab" data-tab="excluded" type="button">Excluded Result</button>
+                        <button class="output-tab" data-tab="overlaps" type="button">Overlaps</button>
+                        <button class="output-tab" data-tab="export" type="button">Config Export</button>
+                        <button class="output-tab" data-tab="json" type="button">JSON</button>
+                    </div>
+
+                    <div class="output-pane active" id="pane-summary"><div class="empty-pane">Enter a CIDR, range, or IP above to see results.</div></div>
+                    <div class="output-pane" id="pane-batch"><div class="empty-pane">Add lines to see the batch table.</div></div>
+                    <div class="output-pane" id="pane-merged"><div class="empty-pane">Add lines to see the merged / summarized result.</div></div>
+                    <div class="output-pane" id="pane-excluded"><div class="empty-pane">Enable exclude mode in settings to see the subtracted result.</div></div>
+                    <div class="output-pane" id="pane-overlaps"><div class="empty-pane">Add two or more lines to check for overlaps.</div></div>
+                    <div class="output-pane" id="pane-export"><div class="empty-pane">Add lines and enable an export format in settings.</div></div>
+                    <div class="output-pane" id="pane-json"><div class="mono-box" id="jsonOut">Enter a CIDR, range, or IP above to see results.</div></div>
+                </div>
+            </div>
+
+            <!-- Utility tools -->
+            <div class="utility-grid">
+                <div class="utility-card">
+                    <h3><i class="fa-solid fa-right-left"></i> Single CIDR → Range</h3>
+                    <div class="utility-note">Drop in one CIDR block and get its exact first–last address range — the format most legacy firewalls, load balancers, and ACL forms expect instead of CIDR notation.</div>
+                    <div class="field-group">
+                        <label for="singleCidrInput">CIDR block</label>
+                        <input type="text" id="singleCidrInput" placeholder="192.168.1.0/26">
+                    </div>
+                    <button class="btn-solid small" id="singleCidrBtn" type="button">Convert</button>
+                    <div class="utility-result" id="singleCidrResult"></div>
+                </div>
+
+                <div class="utility-card">
+                    <h3><i class="fa-solid fa-object-group"></i> Single Range → CIDR</h3>
+                    <div class="utility-note">Drop in a start-end range and get the minimal set of CIDR blocks that cover it exactly — the same bit-alignment approach routers use to summarize routes.</div>
+                    <div class="field-group">
+                        <label for="singleRangeStart">Start address</label>
+                        <input type="text" id="singleRangeStart" placeholder="10.0.0.5">
+                    </div>
+                    <div class="field-group">
+                        <label for="singleRangeEnd">End address</label>
+                        <input type="text" id="singleRangeEnd" placeholder="10.0.0.44">
+                    </div>
+                    <button class="btn-solid small" id="singleRangeBtn" type="button">Convert</button>
+                    <div class="utility-result" id="singleRangeResult"></div>
+                </div>
+
+                <div class="utility-card">
+                    <h3><i class="fa-solid fa-tower-broadcast"></i> Detect My Public IP</h3>
+                    <div class="utility-note">Sends a request to a third-party API (<strong>api.ipify.org</strong>) to look up your public IP — useful for quickly building a "my current IP" allow-list rule. This is the only part of this page that isn't fully offline.</div>
+                    <button class="btn-solid small" id="detectIpBtn" type="button">Detect My IP</button>
+                    <div class="utility-result" id="myIpResult"></div>
+                </div>
+            </div>
+
+            <!-- FAQ Strip -->
+            <div class="faq-section">
+                <div class="section-heading">✦ How This Tool Works</div>
+                <div class="faq-grid">
+                    <div class="faq-item">
+                        <h4>What problem does this actually solve?</h4>
+                        <p>CIDR notation and start-end ranges are both common, but different systems demand different forms — cloud security groups want CIDR, some legacy ACLs and vulnerability scanners want ranges, and neither converts itself. This tool batch-converts both directions, collapses a messy list of rules into the minimal CIDR set that covers them, and turns the result straight into paste-ready firewall config.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>What does "auto-merge" actually change?</h4>
+                        <p>When enabled, every valid line is combined into intervals first, overlapping or directly adjacent ranges are joined, and only then is the merged set converted to CIDR blocks. This is real-world supernetting — ten overlapping ACL entries might collapse into two or three blocks, which is exactly what you want before deploying a rule set.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>How does exclude / subtract work?</h4>
+                        <p>Enable exclude mode and enter a second list. Each excluded address or block is cut out of the main input's range using interval subtraction — so "allow 10.0.0.0/24 except 10.0.0.5 and 10.0.0.128/28" correctly produces the remaining fragments as their own CIDR blocks, not an invalid negative rule.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Why does overlap detection matter?</h4>
+                        <p>Overlapping firewall or ACL entries are a common source of confusing, hard-to-audit rule sets — a broad rule can silently swallow a more specific one placed after it. This checks every pair of input lines and reports which ones intersect, so you can catch redundant or conflicting entries before deployment.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Are the exported config snippets ready to use as-is?</h4>
+                        <p>They're a correct starting point using the CIDR blocks from your current result (merged and/or excluded, depending on your settings), but you should still set the correct chain, interface, zone, or security-group ID for your environment — this tool doesn't know your topology.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Is anything sent to a server?</h4>
+                        <p>No, with one exception: the "Detect My Public IP" button is opt-in and calls a third-party API (ipify.org) to look up your public IP. Everything else — parsing, merging, subtracting, overlap detection, and config generation — runs entirely in your browser. Your draft and settings only persist in this browser's local storage.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="email-signup">
+                <h3 style="font-weight: 800;">✉️ Subscribe to The Byteforge</h3>
+                <p>Get the latest blog posts, offensive research, and quantum security insights — straight to your inbox.</p>
+                <form class="signup-form" id="emailSignupForm"><input type="email" placeholder="your@email.com" required id="footerEmailInput"><button type="submit">Subscribe →</button></form>
+                <small>No spam, only quality content. Unsubscribe anytime.</small>
+            </div>
+            <div class="footer-middle">
+                <div class="footer-links"><a href="https://aw-junaid.github.io/page/privacy.html">Privacy</a><a href="https://aw-junaid.github.io/page/terms.html">T&C'S</a><a href="https://aw-junaid.github.io/page/contact.html">Contact</a><a href="https://aw-junaid.github.io/page/about.html">About</a><a href="https://aw-junaid.github.io/page/sitemap.html">Site Map</a></div>
+                <div class="social-icons">
+                    <a href="https://github.com/aw-junaid/" target="_blank"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://x.com/awjunaid_" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="https://www.linkedin.com/in/aw-junaid/" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="https://www.youtube.com/@awjunaid/featured" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="https://www.facebook.com/awjuna1d" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="https://instagram.com/awjunaid_" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-bottom">&copy; 2026 AWJUNAID.COM | All Rights Reserved</div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        }
+        window.addEventListener('load', () => { if(localStorage.getItem('theme') === 'light') document.body.classList.remove('dark-mode'); });
+
+        document.getElementById('emailSignupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            this.reset();
+        });
+
+        // ============================================
+        // CIDR <-> IP RANGE CONVERTER — ENGINE
+        // ============================================
+
+        // ---------- IPv4 primitives ----------
+        function parseIPv4(str, opts) {
+            if (typeof str !== 'string') return null;
+            const s = str.trim();
+            const m = s.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+            if (!m) return null;
+            const parts = m.slice(1, 5);
+            if (opts && opts.strictValidation) {
+                if (parts.some(p => p.length > 1 && p[0] === '0')) return null;
+            }
+            const octs = parts.map(p => parseInt(p, 10));
+            if (octs.some(o => o < 0 || o > 255)) return null;
+            return octs;
+        }
+        function ipv4ToInt(o) { return ((o[0] * 16777216) + (o[1] * 65536) + (o[2] * 256) + o[3]) >>> 0; }
+        function intToIPv4(n) { n = n >>> 0; return [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join('.'); }
+        function prefixToNetmaskInt(prefix) {
+            if (prefix <= 0) return 0;
+            if (prefix >= 32) return 0xFFFFFFFF >>> 0;
+            return (0xFFFFFFFF << (32 - prefix)) >>> 0;
+        }
+        function trailingZerosInt(n, maxBits) {
+            n = n >>> 0;
+            if (n === 0) return maxBits;
+            let count = 0;
+            while ((n & 1) === 0 && count < maxBits) { n = n >>> 1; count++; }
+            return count;
+        }
+
+        // ---------- IPv6 primitives ----------
+        function parseIPv6(str) {
+            if (typeof str !== 'string') return null;
+            const s = str.trim();
+            if (s === '') return null;
+            if (!/^[0-9a-fA-F:.]+$/.test(s)) return null;
+            const parts = s.split('::');
+            if (parts.length > 2) return null;
+
+            function expandV4Embedded(group) {
+                const o = parseIPv4(group, {});
+                if (!o) return null;
+                return [(((o[0] << 8) | o[1]) >>> 0).toString(16), (((o[2] << 8) | o[3]) >>> 0).toString(16)];
+            }
+            function expandArr(arr) {
+                const out = [];
+                for (let i = 0; i < arr.length; i++) {
+                    if (i === arr.length - 1 && arr[i].includes('.')) {
+                        const ex = expandV4Embedded(arr[i]);
+                        if (!ex) return null;
+                        out.push(...ex);
+                    } else {
+                        out.push(arr[i]);
+                    }
+                }
+                return out;
+            }
+
+            let head = [], tail = [];
+            if (parts.length === 2) {
+                head = parts[0] === '' ? [] : parts[0].split(':');
+                tail = parts[1] === '' ? [] : parts[1].split(':');
+                head = expandArr(head); if (head === null) return null;
+                tail = expandArr(tail); if (tail === null) return null;
+                const missing = 8 - (head.length + tail.length);
+                if (missing < 0) return null;
+                var groups = [...head, ...Array(missing).fill('0'), ...tail];
+            } else {
+                head = s.split(':');
+                head = expandArr(head); if (head === null) return null;
+                if (head.length !== 8) return null;
+                var groups = head;
+            }
+            if (groups.length !== 8) return null;
+            const nums = [];
+            for (const g of groups) {
+                if (g === '' || !/^[0-9a-fA-F]{1,4}$/.test(g)) return null;
+                nums.push(parseInt(g, 16));
+            }
+            return nums;
+        }
+        function ipv6GroupsToBigInt(groups) {
+            let n = 0n;
+            for (const g of groups) n = (n << 16n) | BigInt(g);
+            return n;
+        }
+        function bigIntToIPv6Groups(n) {
+            const groups = [];
+            for (let i = 7; i >= 0; i--) groups.push(Number((n >> BigInt(i * 16)) & 0xFFFFn));
+            return groups;
+        }
+        function compressIPv6(groups) {
+            const hex = groups.map(g => g.toString(16));
+            let bestStart = -1, bestLen = 0, curStart = -1, curLen = 0;
+            for (let i = 0; i < 8; i++) {
+                if (hex[i] === '0') {
+                    if (curStart === -1) curStart = i;
+                    curLen++;
+                    if (curLen > bestLen) { bestLen = curLen; bestStart = curStart; }
+                } else { curStart = -1; curLen = 0; }
+            }
+            if (bestLen < 2) return hex.join(':');
+            const before = hex.slice(0, bestStart).join(':');
+            const after = hex.slice(bestStart + bestLen).join(':');
+            return before + '::' + after;
+        }
+        function trailingZerosBig(n, maxBits) {
+            if (n === 0n) return maxBits;
+            let count = 0;
+            let v = n;
+            while ((v & 1n) === 0n && count < maxBits) { v >>= 1n; count++; }
+            return count;
+        }
+        function bigLog2Floor(n) {
+            if (n <= 1n) return 0;
+            let bits = 0;
+            let v = n;
+            while (v > 1n) { v >>= 1n; bits++; }
+            return bits;
+        }
+        const V6_MAX = (1n << 128n) - 1n;
+
+        // ---------- Range <-> CIDR conversion (bit-alignment algorithm) ----------
+        function rangeToCidrsV4(start, end, cap) {
+            const result = [];
+            let truncated = false;
+            let guard = 0;
+            while (end >= start && guard < 200000) {
+                if (result.length >= cap) { truncated = true; break; }
+                guard++;
+                const alignBits = trailingZerosInt(start, 32);
+                const maxPrefixFromAlign = 32 - alignBits;
+                const sizeInt = end - start + 1;
+                const maxBitsFromSize = Math.floor(Math.log2(sizeInt));
+                const prefixFromSize = 32 - maxBitsFromSize;
+                const prefix = Math.max(maxPrefixFromAlign, prefixFromSize);
+                result.push({ cidr: intToIPv4(start) + '/' + prefix, network: intToIPv4(start), prefix, version: 4 });
+                const step = Math.pow(2, 32 - prefix);
+                if (start + step > 0xFFFFFFFF) { break; }
+                start += step;
+            }
+            return { blocks: result, truncated };
+        }
+        function rangeToCidrsV6(start, end, cap) {
+            const result = [];
+            let truncated = false;
+            let guard = 0;
+            while (end >= start && guard < 200000) {
+                if (result.length >= cap) { truncated = true; break; }
+                guard++;
+                const alignBits = trailingZerosBig(start, 128);
+                const maxPrefixFromAlign = 128 - alignBits;
+                const sizeBig = end - start + 1n;
+                const maxBitsFromSize = bigLog2Floor(sizeBig);
+                const prefixFromSize = 128 - maxBitsFromSize;
+                const prefix = Math.max(maxPrefixFromAlign, prefixFromSize);
+                const netStr = compressIPv6(bigIntToIPv6Groups(start));
+                result.push({ cidr: netStr + '/' + prefix, network: netStr, prefix, version: 6 });
+                const shift = BigInt(128 - prefix);
+                const step = shift === 0n ? 1n : (1n << shift);
+                if (start + step > V6_MAX) { break; }
+                start += step;
+            }
+            return { blocks: result, truncated };
+        }
+        function cidrToRangeV4(ipInt, prefix) {
+            const mask = prefixToNetmaskInt(prefix);
+            const network = (ipInt & mask) >>> 0;
+            const wildcard = (~mask) >>> 0;
+            const broadcast = (network | wildcard) >>> 0;
+            return { start: network, end: broadcast, wildcard };
+        }
+        function cidrToRangeV6(big, prefix) {
+            const shift = BigInt(128 - prefix);
+            const network = shift === 0n ? big : (big >> shift) << shift;
+            const last = shift === 0n ? network : (network | ((1n << shift) - 1n));
+            return { start: network, end: last };
+        }
+
+        // ---------- Interval math (generic across Number / BigInt) ----------
+        function mergeIntervals(list) {
+            if (list.length === 0) return [];
+            const sorted = list.slice().sort((a, b) => a.start < b.start ? -1 : (a.start > b.start ? 1 : 0));
+            const out = [Object.assign({}, sorted[0])];
+            for (let i = 1; i < sorted.length; i++) {
+                const cur = sorted[i];
+                const last = out[out.length - 1];
+                const one = typeof cur.start === 'bigint' ? 1n : 1;
+                if (cur.start <= last.end + one) { if (cur.end > last.end) last.end = cur.end; }
+                else out.push(Object.assign({}, cur));
+            }
+            return out;
+        }
+        function subtractInterval(base, excludes) {
+            let result = [{ start: base.start, end: base.end }];
+            for (const ex of excludes) {
+                const next = [];
+                for (const r of result) {
+                    if (ex.end < r.start || ex.start > r.end) { next.push(r); continue; }
+                    const one = typeof r.start === 'bigint' ? 1n : 1;
+                    if (ex.start > r.start) next.push({ start: r.start, end: ex.start - one });
+                    if (ex.end < r.end) next.push({ start: ex.end + one, end: r.end });
+                }
+                result = next;
+            }
+            return result;
+        }
+        function intervalsOverlap(a, b) { return a.start <= b.end && b.start <= a.end; }
+
+        // ---------- Line parsing ----------
+        function analyzeLine(line, opts) {
+            line = line.trim();
+            if (!line) return null;
+            const result = { raw: line, valid: false, version: null, isCidr: false, isRange: false, error: null };
+
+            if (opts.interpretMode !== 'cidr' && line.includes('-') && !line.includes(':') && !line.includes('/') && line.split('-').length === 2) {
+                const [a, b] = line.split('-').map(x => x.trim());
+                const oa = parseIPv4(a, opts), ob = parseIPv4(b, opts);
+                if (oa && ob) {
+                    result.isRange = true; result.version = 4;
+                    result.start = ipv4ToInt(oa); result.end = ipv4ToInt(ob);
+                    if (result.end < result.start) { result.error = 'Range end is before range start'; return result; }
+                    result.valid = true;
+                    return result;
+                }
+                if (!oa || !ob) { result.error = 'Invalid IPv4 range'; return result; }
+            }
+            if (opts.interpretMode === 'range' && !line.includes('/')) {
+                result.error = 'Interpret mode is set to "Force range only" — this line has no range or was not recognized as one';
+                return result;
+            }
+
+            let ipPart = line, prefixPart = null;
+            if (line.includes('/')) {
+                const idx = line.lastIndexOf('/');
+                ipPart = line.slice(0, idx);
+                prefixPart = line.slice(idx + 1);
+                result.isCidr = true;
+            } else if (opts.interpretMode === 'cidr') {
+                result.error = 'Interpret mode is set to "Force CIDR only" — this line has no "/prefix"';
+                return result;
+            }
+
+            if (ipPart.includes(':')) {
+                if (!opts.mixedVersions && opts.firstVersion === 4) { result.error = 'Mixed IPv4/IPv6 disabled — skipping IPv6 line'; return result; }
+                const groups = parseIPv6(ipPart);
+                if (!groups) { result.error = 'Invalid IPv6 address'; return result; }
+                result.version = 6;
+                result.groups = groups;
+                const big = ipv6GroupsToBigInt(groups);
+                let prefix = result.isCidr ? null : opts.defaultPrefix6;
+                if (prefixPart !== null) {
+                    prefix = parseInt(prefixPart, 10);
+                    if (isNaN(prefix) || prefix < 0 || prefix > 128) { result.error = 'Invalid IPv6 prefix length'; return result; }
+                }
+                result.prefix = prefix;
+                const rng = cidrToRangeV6(big, prefix);
+                result.start = rng.start; result.end = rng.end;
+                result.valid = true;
+                return result;
+            } else {
+                if (!opts.mixedVersions && opts.firstVersion === 6) { result.error = 'Mixed IPv4/IPv6 disabled — skipping IPv4 line'; return result; }
+                const octs = parseIPv4(ipPart, opts);
+                if (!octs) { result.error = 'Invalid IPv4 address'; return result; }
+                result.version = 4;
+                result.octets = octs;
+                const ipInt = ipv4ToInt(octs);
+                let prefix = result.isCidr ? null : opts.defaultPrefix;
+                if (prefixPart !== null) {
+                    prefix = parseInt(prefixPart, 10);
+                    if (isNaN(prefix) || prefix < 0 || prefix > 32) { result.error = 'Invalid IPv4 prefix length'; return result; }
+                }
+                result.prefix = prefix;
+                const rng = cidrToRangeV4(ipInt, prefix);
+                result.start = rng.start; result.end = rng.end; result.wildcard = rng.wildcard;
+                result.valid = true;
+                return result;
+            }
+        }
+
+        function getOptions() {
+            return {
+                strictValidation: document.getElementById('optStrictValidation').checked,
+                assumeDefaultPrefix: document.getElementById('optAssumeDefaultPrefix').checked,
+                defaultPrefix: parseInt(document.getElementById('defaultPrefixInput').value, 10) || 32,
+                defaultPrefix6: parseInt(document.getElementById('defaultPrefix6Input').value, 10) || 128,
+                interpretMode: (document.querySelector('input[name="interpretMode"]:checked') || {}).value || 'auto',
+                showDashRange: document.getElementById('optShowDashRange').checked,
+                showNmapRange: document.getElementById('optShowNmapRange').checked,
+                showDecimalRange: document.getElementById('optShowDecimalRange').checked,
+                showHexRange: document.getElementById('optShowHexRange').checked,
+                uppercaseHex: document.getElementById('optUppercaseHex').checked,
+                showWildcard: document.getElementById('optShowWildcard').checked,
+                autoMerge: document.getElementById('optAutoMerge').checked,
+                detectOverlaps: document.getElementById('optDetectOverlaps').checked,
+                mixedVersions: document.getElementById('optMixedVersions').checked,
+                maxBlocks: parseInt(document.getElementById('maxBlocksInput').value, 10) || 256,
+                maxRows: parseInt(document.getElementById('maxRowsInput').value, 10) || 500,
+                enableExclude: document.getElementById('optEnableExclude').checked,
+                exportIptables: document.getElementById('optExportIptables').checked,
+                exportNftables: document.getElementById('optExportNftables').checked,
+                exportCisco: document.getElementById('optExportCisco').checked,
+                exportAwsSg: document.getElementById('optExportAwsSg').checked,
+                exportNginx: document.getElementById('optExportNginx').checked,
+                exportPfsense: document.getElementById('optExportPfsense').checked
+            };
+        }
+
+        function escapeHtml(str) { return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+        // ---------- Formatting helpers ----------
+        function fmtAddr(val, version) {
+            return version === 4 ? intToIPv4(val) : compressIPv6(bigIntToIPv6Groups(val));
+        }
+        function fmtHex(val, version, uppercase) {
+            let h = version === 4 ? val.toString(16).padStart(8, '0') : val.toString(16).padStart(32, '0');
+            if (uppercase) h = h.toUpperCase();
+            return '0x' + h;
+        }
+        function fmtNmapRange(startInt, endInt) {
+            if ((startInt & 0xFFFFFF00) >>> 0 !== (endInt & 0xFFFFFF00) >>> 0) return null;
+            const base = intToIPv4(startInt).split('.').slice(0, 3).join('.');
+            return base + '.' + (startInt & 255) + '-' + (endInt & 255);
+        }
+        function intervalToBlocks(iv, opts) {
+            if (iv.version === 4) return rangeToCidrsV4(iv.start, iv.end, opts.maxBlocks);
+            return rangeToCidrsV6(iv.start, iv.end, opts.maxBlocks);
+        }
+
+        let lastAnalysis = { batch: [], merged: { v4: [], v6: [] }, excluded: { v4: [], v6: [] }, overlaps: [], effectiveEntries: [] };
+
+        function analyze() {
+            const opts = getOptions();
+            const raw = document.getElementById('ipInput').value;
+            const lines = raw.split('\n').map(l => l.trim()).filter(l => l !== '');
+            document.getElementById('lineCount').textContent = lines.length;
+
+            const firstNonEmpty = lines.find(l => l.includes(':'));
+            opts.firstVersion = firstNonEmpty ? 6 : 4;
+
+            const results = lines.map(l => analyzeLine(l, opts));
+            const validCount = results.filter(r => r && r.valid).length;
+            document.getElementById('validCount').textContent = validCount;
+
+            const errorBox = document.getElementById('errorBox');
+            const firstInvalid = results.find(r => r && !r.valid);
+            if (firstInvalid) {
+                errorBox.textContent = '"' + firstInvalid.raw + '" — ' + firstInvalid.error;
+                errorBox.classList.add('show');
+            } else {
+                errorBox.classList.remove('show');
+            }
+
+            const validResults = results.filter(r => r && r.valid);
+            const v4List = validResults.filter(r => r.version === 4).map(r => ({ start: r.start, end: r.end, version: 4 }));
+            const v6List = validResults.filter(r => r.version === 6).map(r => ({ start: r.start, end: r.end, version: 6 }));
+
+            const mergedV4 = opts.autoMerge ? mergeIntervals(v4List) : v4List.map(x => Object.assign({}, x));
+            const mergedV6 = opts.autoMerge ? mergeIntervals(v6List) : v6List.map(x => Object.assign({}, x));
+            document.getElementById('mergedCount').textContent = mergedV4.length + mergedV6.length;
+
+            // Overlap detection (independent of auto-merge; on raw entries)
+            let overlaps = [];
+            if (opts.detectOverlaps) {
+                for (let i = 0; i < validResults.length; i++) {
+                    for (let j = i + 1; j < validResults.length; j++) {
+                        const a = validResults[i], b = validResults[j];
+                        if (a.version !== b.version) continue;
+                        if (intervalsOverlap(a, b)) overlaps.push([a, b]);
+                    }
+                }
+            }
+
+            // Exclude / subtract
+            let excludedV4 = [], excludedV6 = [], excludeResults = [];
+            if (opts.enableExclude) {
+                const excRaw = document.getElementById('excludeInput').value.split('\n').map(l => l.trim()).filter(l => l !== '');
+                excludeResults = excRaw.map(l => analyzeLine(l, opts));
+                const excV4 = excludeResults.filter(r => r && r.valid && r.version === 4).map(r => ({ start: r.start, end: r.end }));
+                const excV6 = excludeResults.filter(r => r && r.valid && r.version === 6).map(r => ({ start: r.start, end: r.end }));
+                for (const base of mergedV4) excludedV4.push(...subtractInterval(base, excV4));
+                for (const base of mergedV6) excludedV6.push(...subtractInterval(base, excV6));
+                excludedV4 = mergeIntervals(excludedV4.map(x => Object.assign({ version: 4 }, x)));
+                excludedV6 = mergeIntervals(excludedV6.map(x => Object.assign({ version: 6 }, x)));
+            }
+
+            lastAnalysis = {
+                opts, results, validResults,
+                merged: { v4: mergedV4, v6: mergedV6 },
+                excluded: { v4: excludedV4, v6: excludedV6 },
+                excludeResults,
+                overlaps
+            };
+
+            renderSummary(validResults[0] || null, opts);
+            renderBatch(results, opts);
+            renderMerged(mergedV4, mergedV6, v4List.length, v6List.length, opts);
+            renderExcluded(excludedV4, excludedV6, opts);
+            renderOverlaps(overlaps, opts);
+            renderExport(opts);
+            renderJson(opts);
+        }
+
+        function paneEmpty(id, msg) { document.getElementById(id).innerHTML = '<div class="empty-pane">' + escapeHtml(msg) + '</div>'; }
+
+        function rowsForInterval(iv, opts) {
+            const rows = [];
+            rows.push(['Type', iv.version === 4 ? 'IPv4' : 'IPv6']);
+            if (opts.showDashRange) rows.push(['Range', fmtAddr(iv.start, iv.version) + ' \u2013 ' + fmtAddr(iv.end, iv.version)]);
+            if (iv.version === 4 && opts.showNmapRange) {
+                const nm = fmtNmapRange(iv.start, iv.end);
+                rows.push(['Nmap-style range', nm || '(more than the last octet varies)']);
+            }
+            if (opts.showDecimalRange) rows.push(['Decimal range', iv.start.toString() + ' \u2013 ' + iv.end.toString()]);
+            if (opts.showHexRange) rows.push(['Hex range', fmtHex(iv.start, iv.version, opts.uppercaseHex) + ' \u2013 ' + fmtHex(iv.end, iv.version, opts.uppercaseHex)]);
+            const totalCount = iv.version === 4 ? (iv.end - iv.start + 1) : (iv.end - iv.start + 1n);
+            rows.push(['Total addresses', totalCount.toLocaleString()]);
+            return rows;
+        }
+
+        function renderSummary(r, opts) {
+            if (!r) { paneEmpty('pane-summary', 'Enter a valid CIDR, range, or IP above to see results.'); return; }
+            let rows = [];
+            rows.push(['Input', escapeHtml(r.raw)]);
+            rows.push(['Type', r.isRange ? 'Range' : (r.isCidr ? 'CIDR Block' : 'Single Address')]);
+            rows.push(['IP Version', 'IPv' + r.version]);
+            rows = rows.concat(rowsForInterval(r, opts));
+            if (r.version === 4 && opts.showWildcard && !r.isRange) rows.push(['Wildcard mask', intToIPv4(r.wildcard)]);
+            const blocksResult = intervalToBlocks(r, opts);
+            rows.push(['Minimal CIDR blocks', blocksResult.blocks.map(b => b.cidr).join(', ') + (blocksResult.truncated ? ' \u2026 (truncated, raise the limit in settings)' : '')]);
+
+            let html = '<table class="kv-table">';
+            for (const [k, v] of rows) html += '<tr><td class="k">' + escapeHtml(k) + '</td><td class="v">' + escapeHtml(v) + '</td></tr>';
+            html += '</table>';
+            document.getElementById('pane-summary').innerHTML = html;
+        }
+
+        function renderBatch(results, opts) {
+            const rowsData = results.filter(r => r);
+            if (rowsData.length === 0) { paneEmpty('pane-batch', 'Add lines to see the batch table.'); return; }
+            const shown = rowsData.slice(0, opts.maxRows);
+            let html = '<div class="table-scroll"><table class="data-table"><thead><tr><th>Input</th><th>Version</th><th>Type</th><th>Status</th><th>Range</th><th>CIDR Blocks</th></tr></thead><tbody>';
+            for (const r of shown) {
+                if (!r.valid) {
+                    html += '<tr><td>' + escapeHtml(r.raw) + '</td><td colspan="5" style="color:var(--danger);">' + escapeHtml(r.error) + '</td></tr>';
+                    continue;
+                }
+                const blocksResult = intervalToBlocks(r, opts);
+                const blocksStr = blocksResult.blocks.map(b => b.cidr).join(', ') + (blocksResult.truncated ? ' \u2026' : '');
+                html += '<tr>' +
+                    '<td>' + escapeHtml(r.raw) + '</td>' +
+                    '<td>IPv' + r.version + '</td>' +
+                    '<td>' + (r.isRange ? 'Range' : (r.isCidr ? 'CIDR' : 'Address')) + '</td>' +
+                    '<td><span style="color:var(--accent);">Valid</span></td>' +
+                    '<td>' + escapeHtml(fmtAddr(r.start, r.version) + ' \u2013 ' + fmtAddr(r.end, r.version)) + '</td>' +
+                    '<td>' + escapeHtml(blocksStr) + '</td>' +
+                    '</tr>';
+            }
+            html += '</tbody></table></div>';
+            if (rowsData.length > shown.length) html += '<div style="margin-top:8px;font-size:11px;opacity:0.6;">Showing ' + shown.length + ' of ' + rowsData.length + ' rows \u2014 raise "Max batch rows to render" in settings to see more.</div>';
+            document.getElementById('pane-batch').innerHTML = html;
+        }
+
+        function renderMerged(mergedV4, mergedV6, origV4Count, origV6Count, opts) {
+            const all = mergedV4.concat(mergedV6);
+            if (all.length === 0) { paneEmpty('pane-merged', 'Add lines to see the merged / summarized result.'); return; }
+            const origCount = origV4Count + origV6Count;
+            let html = '<div class="stat-line">' + (opts.autoMerge ? 'Auto-merge is on: ' : 'Auto-merge is off \u2014 showing per-line conversion: ') +
+                '<strong>' + origCount + '</strong> input interval(s) \u2192 <strong>' + all.length + '</strong> merged interval(s)</div>';
+            html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Range</th><th>Minimal CIDR Blocks</th><th>Total Addresses</th></tr></thead><tbody>';
+            for (const iv of all) {
+                const blocksResult = intervalToBlocks(iv, opts);
+                const total = iv.version === 4 ? (iv.end - iv.start + 1) : (iv.end - iv.start + 1n);
+                html += '<tr><td>' + escapeHtml(fmtAddr(iv.start, iv.version) + ' \u2013 ' + fmtAddr(iv.end, iv.version)) + '</td><td>' + escapeHtml(blocksResult.blocks.map(b => b.cidr).join(', ') + (blocksResult.truncated ? ' \u2026' : '')) + '</td><td>' + escapeHtml(total.toLocaleString()) + '</td></tr>';
+            }
+            html += '</tbody></table></div>';
+            document.getElementById('pane-merged').innerHTML = html;
+        }
+
+        function renderExcluded(excludedV4, excludedV6, opts) {
+            if (!opts.enableExclude) { paneEmpty('pane-excluded', 'Enable exclude mode in settings to see the subtracted result.'); return; }
+            const all = excludedV4.concat(excludedV6);
+            if (all.length === 0) { paneEmpty('pane-excluded', 'Nothing remains after subtracting the exclude list \u2014 or the main input has no valid entries yet.'); return; }
+            let html = '<div class="stat-line"><strong>' + all.length + '</strong> resulting fragment(s) after subtraction</div>';
+            html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Range</th><th>Minimal CIDR Blocks</th><th>Total Addresses</th></tr></thead><tbody>';
+            for (const iv of all) {
+                const blocksResult = intervalToBlocks(iv, opts);
+                const total = iv.version === 4 ? (iv.end - iv.start + 1) : (iv.end - iv.start + 1n);
+                html += '<tr><td>' + escapeHtml(fmtAddr(iv.start, iv.version) + ' \u2013 ' + fmtAddr(iv.end, iv.version)) + '</td><td>' + escapeHtml(blocksResult.blocks.map(b => b.cidr).join(', ') + (blocksResult.truncated ? ' \u2026' : '')) + '</td><td>' + escapeHtml(total.toLocaleString()) + '</td></tr>';
+            }
+            html += '</tbody></table></div>';
+            document.getElementById('pane-excluded').innerHTML = html;
+        }
+
+        function renderOverlaps(overlaps, opts) {
+            if (!opts.detectOverlaps) { paneEmpty('pane-overlaps', 'Overlap detection is turned off in settings.'); return; }
+            if (overlaps.length === 0) { paneEmpty('pane-overlaps', 'No overlapping entries found among the valid input lines.'); return; }
+            let html = '<div class="stat-line"><strong>' + overlaps.length + '</strong> overlapping pair(s) found</div>';
+            html += '<div class="table-scroll"><table class="data-table"><thead><tr><th>Entry A</th><th>Entry B</th></tr></thead><tbody>';
+            for (const [a, b] of overlaps) {
+                html += '<tr><td>' + escapeHtml(a.raw) + '</td><td>' + escapeHtml(b.raw) + '</td></tr>';
+            }
+            html += '</tbody></table></div>';
+            document.getElementById('pane-overlaps').innerHTML = html;
+        }
+
+        function getEffectiveBlocks(opts) {
+            let intervals;
+            if (opts.enableExclude) intervals = lastAnalysis.excluded.v4.concat(lastAnalysis.excluded.v6);
+            else intervals = lastAnalysis.merged.v4.concat(lastAnalysis.merged.v6);
+            let blocks = [];
+            for (const iv of intervals) {
+                const r = intervalToBlocks(iv, opts);
+                for (const b of r.blocks) {
+                    if (b.version === 4) {
+                        const mask = prefixToNetmaskInt(b.prefix);
+                        b.wildcard = intToIPv4((~mask) >>> 0);
+                    }
+                    blocks.push(b);
+                }
+            }
+            return blocks;
+        }
+
+        function renderExport(opts) {
+            const blocks = getEffectiveBlocks(opts);
+            if (blocks.length === 0) { paneEmpty('pane-export', 'Add lines above to generate config snippets.'); return; }
+            const anyFormat = opts.exportIptables || opts.exportNftables || opts.exportCisco || opts.exportAwsSg || opts.exportNginx || opts.exportPfsense;
+            if (!anyFormat) { paneEmpty('pane-export', 'Enable at least one export format in settings.'); return; }
+
+            const v4 = blocks.filter(b => b.version === 4);
+            const v6 = blocks.filter(b => b.version === 6);
+            let html = '';
+
+            function block(label, content) {
+                return '<div class="export-block"><div class="export-label"><span>' + escapeHtml(label) + '</span></div><div class="mono-box">' + escapeHtml(content) + '</div></div>';
+            }
+
+            if (opts.exportIptables) {
+                let lines = [];
+                v4.forEach(b => lines.push('iptables -A INPUT -s ' + b.cidr + ' -j ACCEPT'));
+                v6.forEach(b => lines.push('ip6tables -A INPUT -s ' + b.cidr + ' -j ACCEPT'));
+                html += block('iptables / ip6tables', lines.join('\n') || '(no entries)');
+            }
+            if (opts.exportNftables) {
+                let lines = [];
+                if (v4.length) lines.push('add rule inet filter input ip saddr { ' + v4.map(b => b.cidr).join(', ') + ' } accept');
+                if (v6.length) lines.push('add rule inet filter input ip6 saddr { ' + v6.map(b => b.cidr).join(', ') + ' } accept');
+                html += block('nftables', lines.join('\n') || '(no entries)');
+            }
+            if (opts.exportCisco) {
+                let lines = v4.map(b => 'permit ip ' + b.network + ' ' + b.wildcard + ' any');
+                html += block('Cisco extended ACL (IPv4 only)', lines.join('\n') || '(no IPv4 entries \u2014 Cisco classic ACL wildcard export is IPv4 only)');
+            }
+            if (opts.exportAwsSg) {
+                let lines = blocks.map(b => '  { "CidrIp' + (b.version === 6 ? 'v6' : '') + '": "' + b.cidr + '" }');
+                html += block('AWS Security Group (CidrIp entries)', '[\n' + lines.join(',\n') + '\n]');
+            }
+            if (opts.exportNginx) {
+                let lines = blocks.map(b => 'allow ' + b.cidr + ';');
+                html += block('Nginx allow list', lines.join('\n') + '\ndeny all;');
+            }
+            if (opts.exportPfsense) {
+                let lines = blocks.map(b => b.cidr);
+                html += block('pfSense / OPNsense Network alias', lines.join('\n'));
+            }
+            document.getElementById('pane-export').innerHTML = html;
+        }
+
+        function renderJson(opts) {
+            const mkIv = (iv) => ({
+                version: iv.version,
+                start: fmtAddr(iv.start, iv.version),
+                end: fmtAddr(iv.end, iv.version),
+                cidrBlocks: intervalToBlocks(iv, opts).blocks.map(b => b.cidr)
+            });
+            const out = {
+                batch: lastAnalysis.results.filter(r => r).map(r => r.valid ? {
+                    input: r.raw, valid: true, version: r.version,
+                    type: r.isRange ? 'range' : (r.isCidr ? 'cidr' : 'address'),
+                    start: fmtAddr(r.start, r.version), end: fmtAddr(r.end, r.version),
+                    cidrBlocks: intervalToBlocks(r, opts).blocks.map(b => b.cidr)
+                } : { input: r.raw, valid: false, error: r.error }),
+                merged: lastAnalysis.merged.v4.concat(lastAnalysis.merged.v6).map(mkIv),
+                excluded: opts.enableExclude ? lastAnalysis.excluded.v4.concat(lastAnalysis.excluded.v6).map(mkIv) : null,
+                overlaps: lastAnalysis.overlaps.map(([a, b]) => [a.raw, b.raw])
+            };
+            document.getElementById('jsonOut').textContent = JSON.stringify(out, null, 2);
+        }
+
+        // ---------- Wiring ----------
+        document.getElementById('ipInput').addEventListener('input', analyze);
+        document.getElementById('excludeInput').addEventListener('input', analyze);
+        document.querySelectorAll('.settings-card input, .settings-card select').forEach(el => {
+            el.addEventListener('input', () => { document.getElementById('presetSelect').value = 'custom'; analyze(); });
+        });
+
+        document.getElementById('optEnableExclude').addEventListener('change', () => {
+            document.getElementById('excludeWrap').classList.toggle('show', document.getElementById('optEnableExclude').checked);
+        });
+
+        document.querySelectorAll('.output-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.output-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.output-pane').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('pane-' + tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            document.getElementById('ipInput').value = '';
+            analyze();
+            document.getElementById('ipInput').focus();
+        });
+
+        document.getElementById('copyJsonBtn').addEventListener('click', async () => {
+            const text = document.getElementById('jsonOut').textContent;
+            try { await navigator.clipboard.writeText(text); } catch (err) { /* ignore */ }
+        });
+
+        document.getElementById('downloadCsvBtn').addEventListener('click', () => {
+            const opts = getOptions();
+            const rows = lastAnalysis.results.filter(r => r);
+            if (rows.length === 0) return;
+            const header = ['input', 'valid', 'version', 'type', 'start', 'end', 'cidrBlocks', 'error'];
+            const lines = [header.join(',')];
+            for (const r of rows) {
+                if (!r.valid) { lines.push([csvCell(r.raw), 'false', '', '', '', '', '', csvCell(r.error)].join(',')); continue; }
+                const blocksResult = intervalToBlocks(r, opts);
+                lines.push([
+                    csvCell(r.raw), 'true', String(r.version), r.isRange ? 'range' : (r.isCidr ? 'cidr' : 'address'),
+                    csvCell(fmtAddr(r.start, r.version)), csvCell(fmtAddr(r.end, r.version)),
+                    csvCell(blocksResult.blocks.map(b => b.cidr).join('; ')), ''
+                ].join(','));
+            }
+            const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'cidr-range-batch.csv';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+        function csvCell(s) { s = String(s == null ? '' : s); return '"' + s.replace(/"/g, '""') + '"'; }
+
+        // ---------- Utility: Single CIDR -> Range ----------
+        document.getElementById('singleCidrBtn').addEventListener('click', () => {
+            const opts = getOptions();
+            const resultEl = document.getElementById('singleCidrResult');
+            const val = document.getElementById('singleCidrInput').value.trim();
+            const localOpts = Object.assign({}, opts, { interpretMode: 'cidr' });
+            const r = analyzeLine(val, localOpts);
+            if (!r || !r.valid || r.isRange) { resultEl.innerHTML = '<div style="color:var(--danger);font-size:12.5px;">Enter a valid CIDR block, e.g. 192.168.1.0/26.</div>'; return; }
+            const rows = rowsForInterval(r, opts);
+            let html = '<table class="kv-table">';
+            for (const [k, v] of rows) html += '<tr><td class="k">' + escapeHtml(k) + '</td><td class="v">' + escapeHtml(v) + '</td></tr>';
+            html += '</table>';
+            resultEl.innerHTML = html;
+        });
+
+        // ---------- Utility: Single Range -> CIDR ----------
+        document.getElementById('singleRangeBtn').addEventListener('click', () => {
+            const opts = getOptions();
+            const resultEl = document.getElementById('singleRangeResult');
+            const a = document.getElementById('singleRangeStart').value.trim();
+            const b = document.getElementById('singleRangeEnd').value.trim();
+            const localOpts = Object.assign({}, opts, { interpretMode: 'auto' });
+            const rA = analyzeLine(a, localOpts);
+            const rB = analyzeLine(b, localOpts);
+            if (!rA || !rA.valid || rA.isRange || !rB || !rB.valid || rB.isRange) { resultEl.innerHTML = '<div style="color:var(--danger);font-size:12.5px;">Enter two valid, same-version addresses.</div>'; return; }
+            if (rA.version !== rB.version) { resultEl.innerHTML = '<div style="color:var(--danger);font-size:12.5px;">Both fields must be the same IP version.</div>'; return; }
+            if (rB.start < rA.start) { resultEl.innerHTML = '<div style="color:var(--danger);font-size:12.5px;">End address is before start address.</div>'; return; }
+            const iv = { version: rA.version, start: rA.start, end: rB.start };
+            const blocksResult = intervalToBlocks(iv, opts);
+            const total = iv.version === 4 ? (iv.end - iv.start + 1) : (iv.end - iv.start + 1n);
+            resultEl.innerHTML = '<div class="stat-line">' + total.toLocaleString() + ' address(es)' + (blocksResult.truncated ? ' \u2014 block list truncated, raise the limit in settings' : '') + '</div><div class="mono-box">' + escapeHtml(blocksResult.blocks.map(x => x.cidr).join('\n')) + '</div>';
+        });
+
+        // ---------- Utility: Detect My Public IP ----------
+        document.getElementById('detectIpBtn').addEventListener('click', async () => {
+            const resultEl = document.getElementById('myIpResult');
+            resultEl.innerHTML = '<div style="font-size:12px;opacity:0.6;">Looking up your public IP via api.ipify.org\u2026</div>';
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                resultEl.innerHTML = '<div class="mono-box">' + escapeHtml(data.ip) + '</div><button class="btn-ghost small" id="useDetectedIpBtn" type="button" style="margin-top:8px;">Add to Input</button>';
+                document.getElementById('useDetectedIpBtn').addEventListener('click', () => {
+                    const ta = document.getElementById('ipInput');
+                    ta.value = ta.value.trim() ? ta.value.trim() + '\n' + data.ip : data.ip;
+                    analyze();
+                    ta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+            } catch (err) {
+                resultEl.innerHTML = '<div style="color:var(--danger);font-size:12px;">Could not reach api.ipify.org. Check your connection or try again.</div>';
+            }
+        });
+
+        // ============================================
+        // SETTINGS: presets / export / import / persistence
+        // ============================================
+        const SETTING_IDS = {
+            checkboxes: ['optStrictValidation', 'optAssumeDefaultPrefix', 'optShowDashRange', 'optShowNmapRange', 'optShowDecimalRange', 'optShowHexRange', 'optUppercaseHex', 'optShowWildcard', 'optAutoMerge', 'optDetectOverlaps', 'optMixedVersions', 'optEnableExclude', 'optExportIptables', 'optExportNftables', 'optExportCisco', 'optExportAwsSg', 'optExportNginx', 'optExportPfsense'],
+            text: ['defaultPrefixInput', 'defaultPrefix6Input', 'maxBlocksInput', 'maxRowsInput'],
+            radio: ['interpretMode']
+        };
+        function getRawSettingsForPersist() {
+            const raw = {};
+            SETTING_IDS.checkboxes.forEach(id => raw[id] = document.getElementById(id).checked);
+            SETTING_IDS.text.forEach(id => raw[id] = document.getElementById(id).value);
+            SETTING_IDS.radio.forEach(name => { const c = document.querySelector('input[name="' + name + '"]:checked'); raw[name] = c ? c.value : null; });
+            return raw;
+        }
+        function applySettingsObject(settings) {
+            if (!settings) return;
+            SETTING_IDS.checkboxes.forEach(id => { if (id in settings) document.getElementById(id).checked = !!settings[id]; });
+            SETTING_IDS.text.forEach(id => { if (id in settings) document.getElementById(id).value = settings[id]; });
+            SETTING_IDS.radio.forEach(name => {
+                if (settings[name]) {
+                    const el = document.querySelector('input[name="' + name + '"][value="' + settings[name] + '"]');
+                    if (el) el.checked = true;
+                }
+            });
+            document.getElementById('excludeWrap').classList.toggle('show', document.getElementById('optEnableExclude').checked);
+        }
+
+        const BUILTIN_PRESETS = {
+            quick: {
+                optStrictValidation: false, optAssumeDefaultPrefix: true, defaultPrefixInput: '32', defaultPrefix6Input: '128', interpretMode: 'auto',
+                optShowDashRange: true, optShowNmapRange: true, optShowDecimalRange: false, optShowHexRange: false, optUppercaseHex: false, optShowWildcard: true,
+                optAutoMerge: false, optDetectOverlaps: false, optMixedVersions: true,
+                maxBlocksInput: '256', maxRowsInput: '500', optEnableExclude: false,
+                optExportIptables: false, optExportNftables: false, optExportCisco: false, optExportAwsSg: false, optExportNginx: false, optExportPfsense: false
+            },
+            'acl-audit': {
+                optStrictValidation: true, optAssumeDefaultPrefix: true, defaultPrefixInput: '32', defaultPrefix6Input: '128', interpretMode: 'auto',
+                optShowDashRange: true, optShowNmapRange: false, optShowDecimalRange: false, optShowHexRange: false, optUppercaseHex: false, optShowWildcard: true,
+                optAutoMerge: false, optDetectOverlaps: true, optMixedVersions: true,
+                maxBlocksInput: '256', maxRowsInput: '1000', optEnableExclude: false,
+                optExportIptables: false, optExportNftables: false, optExportCisco: true, optExportAwsSg: false, optExportNginx: false, optExportPfsense: false
+            },
+            summarize: {
+                optStrictValidation: false, optAssumeDefaultPrefix: true, defaultPrefixInput: '24', defaultPrefix6Input: '64', interpretMode: 'auto',
+                optShowDashRange: true, optShowNmapRange: false, optShowDecimalRange: false, optShowHexRange: false, optUppercaseHex: false, optShowWildcard: false,
+                optAutoMerge: true, optDetectOverlaps: true, optMixedVersions: true,
+                maxBlocksInput: '512', maxRowsInput: '500', optEnableExclude: false,
+                optExportIptables: false, optExportNftables: false, optExportCisco: false, optExportAwsSg: false, optExportNginx: false, optExportPfsense: false
+            },
+            allowlist: {
+                optStrictValidation: false, optAssumeDefaultPrefix: true, defaultPrefixInput: '32', defaultPrefix6Input: '128', interpretMode: 'auto',
+                optShowDashRange: true, optShowNmapRange: false, optShowDecimalRange: false, optShowHexRange: false, optUppercaseHex: false, optShowWildcard: true,
+                optAutoMerge: true, optDetectOverlaps: true, optMixedVersions: true,
+                maxBlocksInput: '256', maxRowsInput: '500', optEnableExclude: true,
+                optExportIptables: false, optExportNftables: false, optExportCisco: false, optExportAwsSg: true, optExportNginx: true, optExportPfsense: false
+            },
+            export: {
+                optStrictValidation: false, optAssumeDefaultPrefix: true, defaultPrefixInput: '32', defaultPrefix6Input: '128', interpretMode: 'auto',
+                optShowDashRange: false, optShowNmapRange: false, optShowDecimalRange: false, optShowHexRange: false, optUppercaseHex: false, optShowWildcard: true,
+                optAutoMerge: true, optDetectOverlaps: false, optMixedVersions: true,
+                maxBlocksInput: '256', maxRowsInput: '500', optEnableExclude: false,
+                optExportIptables: true, optExportNftables: true, optExportCisco: true, optExportAwsSg: true, optExportNginx: true, optExportPfsense: true
+            }
+        };
+
+        const CUSTOM_PRESETS_KEY = 'cidrRangeCustomPresets';
+        function loadCustomPresets() { try { return JSON.parse(localStorage.getItem(CUSTOM_PRESETS_KEY) || '{}'); } catch (err) { return {}; } }
+        function saveCustomPresets(p) { try { localStorage.setItem(CUSTOM_PRESETS_KEY, JSON.stringify(p)); } catch (err) { /* ignore */ } }
+        function refreshPresetOptions() {
+            const select = document.getElementById('presetSelect');
+            document.querySelectorAll('#presetSelect option[data-custom="1"]').forEach(o => o.remove());
+            const custom = loadCustomPresets();
+            Object.keys(custom).forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = 'custom:' + name; opt.textContent = name + ' (saved)'; opt.dataset.custom = '1';
+                select.appendChild(opt);
+            });
+        }
+        refreshPresetOptions();
+
+        document.getElementById('presetSelect').addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (val === 'custom') return;
+            if (val.startsWith('custom:')) {
+                const name = val.slice('custom:'.length);
+                const custom = loadCustomPresets();
+                if (custom[name]) applySettingsObject(custom[name]);
+            } else if (BUILTIN_PRESETS[val]) {
+                applySettingsObject(BUILTIN_PRESETS[val]);
+            }
+            analyze();
+        });
+
+        document.getElementById('savePresetBtn').addEventListener('click', () => {
+            const name = prompt('Name this preset:');
+            if (!name) return;
+            const custom = loadCustomPresets();
+            custom[name] = getRawSettingsForPersist();
+            saveCustomPresets(custom);
+            refreshPresetOptions();
+            document.getElementById('presetSelect').value = 'custom:' + name;
+        });
+
+        document.getElementById('exportSettingsBtn').addEventListener('click', () => {
+            const blob = new Blob([JSON.stringify(getRawSettingsForPersist(), null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'cidr-range-converter-config.json';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+        const importSettingsInput = document.getElementById('importSettingsInput');
+        document.getElementById('importSettingsBtn').addEventListener('click', () => importSettingsInput.click());
+        importSettingsInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    const settings = JSON.parse(ev.target.result);
+                    applySettingsObject(settings);
+                    document.getElementById('presetSelect').value = 'custom';
+                    analyze();
+                } catch (err) { alert('That file is not a valid config JSON.'); }
+            };
+            reader.readAsText(file);
+            importSettingsInput.value = '';
+        });
+
+        // ---------- Draft autosave ----------
+        const DRAFT_KEY = 'cidrRangeDraft';
+        const DRAFT_EXCLUDE_KEY = 'cidrRangeExcludeDraft';
+        const DRAFT_SETTINGS_KEY = 'cidrRangeLastSettings';
+        let draftTimer;
+        function saveDraft() {
+            clearTimeout(draftTimer);
+            draftTimer = setTimeout(() => {
+                try {
+                    localStorage.setItem(DRAFT_KEY, document.getElementById('ipInput').value);
+                    localStorage.setItem(DRAFT_EXCLUDE_KEY, document.getElementById('excludeInput').value);
+                    localStorage.setItem(DRAFT_SETTINGS_KEY, JSON.stringify(getRawSettingsForPersist()));
+                } catch (err) { /* ignore */ }
+            }, 400);
+        }
+        document.getElementById('ipInput').addEventListener('input', saveDraft);
+        document.getElementById('excludeInput').addEventListener('input', saveDraft);
+        document.querySelectorAll('.settings-card input, .settings-card select').forEach(el => el.addEventListener('input', saveDraft));
+
+        (function restoreDraft() {
+            try {
+                const savedSettings = localStorage.getItem(DRAFT_SETTINGS_KEY);
+                if (savedSettings) applySettingsObject(JSON.parse(savedSettings));
+                const savedDraft = localStorage.getItem(DRAFT_KEY);
+                if (savedDraft !== null && savedDraft !== '') document.getElementById('ipInput').value = savedDraft;
+                else document.getElementById('ipInput').value = '10.0.0.0/24\n192.168.1.10\n203.0.113.5-203.0.113.20\n2001:db8::/48';
+                const savedExclude = localStorage.getItem(DRAFT_EXCLUDE_KEY);
+                if (savedExclude !== null) document.getElementById('excludeInput').value = savedExclude;
+            } catch (err) {
+                document.getElementById('ipInput').value = '10.0.0.0/24\n192.168.1.10\n203.0.113.5-203.0.113.20\n2001:db8::/48';
+            }
+        })();
+
+        // Initial run
+        analyze();
+    </script>
+</body>
+</html>
