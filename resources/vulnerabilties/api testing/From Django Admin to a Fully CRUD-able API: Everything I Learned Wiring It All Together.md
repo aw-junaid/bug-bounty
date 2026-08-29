@@ -200,19 +200,19 @@ Before DRF, a Django view was just a function or class that took a request and r
 
 ```mermaid
 flowchart LR
-    A[HTTP Request] --> B["APIView subclass"]
+    A["HTTP Request"] --> B["APIView subclass"]
     B --> C{"Which method?"}
-    C -->|GET| D[get&#40;self, request&#41;]
-    C -->|POST| E[post&#40;self, request&#41;]
-    C -->|PUT| F[put&#40;self, request&#41;]
-    C -->|PATCH| G[patch&#40;self, request&#41;]
-    C -->|DELETE| H[delete&#40;self, request&#41;]
-    D --> I[Response object]
+    C -->|GET| D["get(self, request)"]
+    C -->|POST| E["post(self, request)"]
+    C -->|PUT| F["put(self, request)"]
+    C -->|PATCH| G["patch(self, request)"]
+    C -->|DELETE| H["delete(self, request)"]
+    D --> I["Response object"]
     E --> I
     F --> I
     G --> I
     H --> I
-    I --> J[JSON sent back to client]
+    I --> J["JSON sent back to client"]
 ```
 
 I think of `APIView` as giving me seven things I'd otherwise have to build myself:
@@ -461,13 +461,13 @@ Serializers are the translation layer between Django model instances (or queryse
 
 ```mermaid
 flowchart LR
-    A["Model instance / queryset"] --> B[Serializer]
+    A["Model instance / queryset"] --> B["Serializer"]
     B --> C["Python dict"]
     C --> D["Response renders to JSON"]
-    E["Incoming JSON"] --> F["Serializer&#40;data=...&#41;"]
-    F --> G{is_valid&#40;&#41;?}
-    G -->|yes| H[serializer.save&#40;&#41;]
-    G -->|no| I[serializer.errors]
+    E["Incoming JSON"] --> F["Serializer(data=...)"]
+    F --> G{"is_valid()?"}
+    G -->|yes| H["serializer.save()"]
+    G -->|no| I["serializer.errors"]
 ```
 
 **The manual way**, field by field:
