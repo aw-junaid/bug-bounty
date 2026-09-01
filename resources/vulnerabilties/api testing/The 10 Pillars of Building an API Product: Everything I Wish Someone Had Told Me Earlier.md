@@ -43,13 +43,18 @@ flowchart TB
         Monitor[Monitoring]
     end
 
-    Strategy[Strategy] --> Interface
-    Strategy --> Implementation
-    Strategy --> Instance
+    Strategy[Strategy] --> Design
+    Strategy --> Dev
+    Strategy --> Deploy
     
-    Interface --> ChangeMgmt[Change Management]
-    Implementation --> ChangeMgmt
-    Instance --> ChangeMgmt
+    Design --> ChangeMgmt[Change Management]
+    Docs --> ChangeMgmt
+    Discovery --> ChangeMgmt
+    Dev --> ChangeMgmt
+    Testing --> ChangeMgmt
+    Security --> ChangeMgmt
+    Deploy --> ChangeMgmt
+    Monitor --> ChangeMgmt
 ```
 
 Notice that **strategy** feeds everything, and **change management** sits downstream of everything. That's not an accident — it's basically the thesis of this entire post. Now let's actually go through the ten pillars themselves.
