@@ -46,6 +46,7 @@ flowchart TB
     Strategy[Strategy] --> Interface
     Strategy --> Implementation
     Strategy --> Instance
+    
     Interface --> ChangeMgmt[Change Management]
     Implementation --> ChangeMgmt
     Instance --> ChangeMgmt
