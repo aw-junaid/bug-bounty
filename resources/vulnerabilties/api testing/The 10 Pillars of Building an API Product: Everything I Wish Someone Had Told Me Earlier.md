@@ -26,6 +26,8 @@ Here's a diagram of how I picture the relationship between these three concepts 
 
 ```mermaid
 flowchart TB
+    Strategy[Strategy]
+    
     subgraph Interface["🎯 Interface (the promise)"]
         Design[Design]
         Docs[Documentation]
@@ -42,17 +44,28 @@ flowchart TB
         Deploy[Deployment]
         Monitor[Monitoring]
     end
-
-    Strategy[Strategy] --> Design
-    Strategy --> Dev
-    Strategy --> Deploy
     
-    Design --> ChangeMgmt[Change Management]
+    ChangeMgmt[Change Management]
+
+    Strategy --> Design
+    Strategy --> Docs
+    Strategy --> Discovery
+    
+    Strategy --> Dev
+    Strategy --> Testing
+    Strategy --> Security
+    
+    Strategy --> Deploy
+    Strategy --> Monitor
+    
+    Design --> ChangeMgmt
     Docs --> ChangeMgmt
     Discovery --> ChangeMgmt
+    
     Dev --> ChangeMgmt
     Testing --> ChangeMgmt
     Security --> ChangeMgmt
+    
     Deploy --> ChangeMgmt
     Monitor --> ChangeMgmt
 ```
