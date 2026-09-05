@@ -1,5 +1,5 @@
 # Managing an API Landscape: Everything I've Learned About Scaling Past a Single API
-
+  
 There's a Richard Dawkins line I keep coming back to whenever I'm trying to explain why managing many APIs is a genuinely different problem than managing one: *"The theory of evolution by cumulative natural selection is the only theory we know of that is in principle capable of explaining the existence of organized complexity."* I know that sounds like a strange quote to open a post about enterprise API management with, but I promise it earns its place. Once I stopped trying to *design* my API landscape top-down and started trying to *cultivate* it — letting good patterns emerge and spread, letting weak ones fade out — everything about managing a large set of APIs got easier. This post is about that shift in mindset, and the practical tools I use to actually pull it off.
 
 ## What I Mean by "API Landscape"
