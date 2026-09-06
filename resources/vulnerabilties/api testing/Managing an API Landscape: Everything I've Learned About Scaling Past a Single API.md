@@ -2,7 +2,7 @@
   
 There's a Richard Dawkins line I keep coming back to whenever I'm trying to explain why managing many APIs is a genuinely different problem than managing one: *"The theory of evolution by cumulative natural selection is the only theory we know of that is in principle capable of explaining the existence of organized complexity."* I know that sounds like a strange quote to open a post about enterprise API management with, but I promise it earns its place. Once I stopped trying to *design* my API landscape top-down and started trying to *cultivate* it — letting good patterns emerge and spread, letting weak ones fade out — everything about managing a large set of APIs got easier. This post is about that shift in mindset, and the practical tools I use to actually pull it off.
 
-## What I Mean by "API Landscape"
+## What I Mean by "API Landscape" 
 
 I define an API landscape simply: it's the complete set of APIs a single organization has published. Those APIs can sit in wildly different maturity stages (create, publish, realize, maintain, retire), can be aimed at completely different audiences (private, partner, public), and can differ in style, protocol, or implementation. You might also hear this called an API portfolio, API catalog, or API surface area — I use these terms fairly interchangeably, though I personally like "landscape" best because it captures something the others don't: the sense of an environment that's alive and continuously changing, not a static inventory sitting in a spreadsheet.
 
