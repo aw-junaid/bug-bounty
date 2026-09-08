@@ -1,4 +1,4 @@
-# The API Landscape Maturity Journey: Why I Stopped Looking for a Finish Line
+# The API Landscape Maturity Journey: Why I Stopped Looking for a Finish Line 
 
 Donald Knuth once wrote that *"premature optimization is the root of all evil (or at least most of it) in programming."* I think about that line a lot when people ask me what a "mature" API landscape actually looks like, because I think the question itself contains a trap. People want a checklist, a score, a finish line — some state where the landscape is finally "done" and they can stop paying attention to it. I want to convince you in this post that this question is the wrong one to ask, and I want to give you the framework I actually use instead.
 
