@@ -358,14 +358,17 @@ Here you give developers a way to pin to a specific version and opt into upgrade
 
 ```mermaid
 flowchart TD
-    Req[Incoming request] --> Where{Where is version specified?}
-    Where -- URI path --> URI[/v1.2/resource]
-    Where -- Header --> Hdr[Stripe-Version: 2027-01-15]
-    Where -- Query param --> Qp[?v=3]
-    URI --> Route[Route to version-specific handler]
+    Req["Incoming request"] --> Where{"Where is version specified?"}
+
+    Where -->|"URI path"| URI["/v1.2/resource"]
+    Where -->|"Header"| Hdr["Stripe-Version: 2027-01-15"]
+    Where -->|"Query param"| Qp["?v=3"]
+
+    URI --> Route["Route to version-specific handler"]
     Hdr --> Route
     Qp --> Route
-    Route --> Resp[Version-appropriate response]
+
+    Route --> Resp["Version-appropriate response"]
 ```
 
 ### 6.3 Implementing multiple versions behind the scenes
