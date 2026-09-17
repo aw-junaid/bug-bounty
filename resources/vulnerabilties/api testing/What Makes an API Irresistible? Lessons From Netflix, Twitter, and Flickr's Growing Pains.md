@@ -161,12 +161,15 @@ I've written about this metric before, but it's worth restating in this context:
 
 ```mermaid
 flowchart LR
-    Land[Developer lands on site] --> Read{Docs answer\n"why do I care?"\nquickly?}
-    Read -- no --> Bounce[Developer leaves]
-    Read -- yes --> Try[Developer tries\nfirst API call]
-    Try --> Success{Succeeds within\n~5 minutes?}
-    Success -- no --> Frustrated[Developer gives up\nor deprioritizes]
-    Success -- yes --> Invested[Developer invests\nreal time building]
+    Land["Developer lands on site"] --> Read{"Docs answer<br/>why do I care?<br/>quickly?"}
+
+    Read -->|"No"| Bounce["Developer leaves"]
+    Read -->|"Yes"| Try["Developer tries<br/>first API call"]
+
+    Try --> Success{"Succeeds within<br/>~5 minutes?"}
+
+    Success -->|"No"| Frustrated["Developer gives up<br/>or deprioritizes"]
+    Success -->|"Yes"| Invested["Developer invests<br/>real time building"]
 ```
 
 ---
