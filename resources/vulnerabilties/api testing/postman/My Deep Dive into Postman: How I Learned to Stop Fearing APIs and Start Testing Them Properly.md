@@ -1,5 +1,5 @@
 # My Deep Dive into Postman: How I Learned to Stop Fearing APIs and Start Testing Them Properly
-
+ 
 I still remember the first time someone told me to "just hit the API and check the response." I nodded like I understood, then spent the next hour Googling what an API even was. If you're in that same boat right now, welcome — I wrote this post for the version of me from a few years ago, and hopefully it saves you some of the confusion I went through.
 
 In this post, I'm going to walk you through everything I've learned about Postman and API testing: the interface, how requests actually work, how I write test scripts, how I organize my work with collections and environments, and a bunch of practical tips I wish someone had handed me on day one. I'll include diagrams, tables, tested code snippets, and a few "notes" and "cautions" boxes for the things that tripped me up.
