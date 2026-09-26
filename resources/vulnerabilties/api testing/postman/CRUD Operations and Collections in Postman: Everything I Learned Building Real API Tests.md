@@ -1,5 +1,5 @@
 # CRUD Operations and Collections in Postman: Everything I Learned Building Real API Tests
-
+ 
 After I got comfortable making basic GET requests, I hit a wall — real-world API testing isn't just about reading data, it's about creating, updating, and deleting it too. That's when I really started to understand CRUD (Create, Read, Update, Delete) and, eventually, how Collections tie all of it together into something maintainable. This post is my attempt to lay out everything I picked up along the way, with diagrams, tested code, and the mistakes I made so you can skip them.
 
 ---
