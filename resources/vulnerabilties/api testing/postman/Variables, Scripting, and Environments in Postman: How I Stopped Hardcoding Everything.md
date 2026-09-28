@@ -39,10 +39,10 @@ Variables solved four problems for me at once:
 
 ```mermaid
 flowchart LR
-    A[Hardcoded Value<br/>in every request]:::bad -->|Refactor| B[Single Variable<br/>{{baseUrl}}]:::good
-    B --> C[Request 1]:::use
-    B --> D[Request 2]:::use
-    B --> E[Request 3]:::use
+    A["Hardcoded Value<br>in every request"]:::bad -->|Refactor| B["Single Variable<br>{{baseUrl}}"]:::good
+    B --> C["Request 1"]:::use
+    B --> D["Request 2"]:::use
+    B --> E["Request 3"]:::use
 
     classDef bad fill:#ffcdd2,stroke:#b71c1c,stroke-width:2px,color:#000
     classDef good fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px,color:#000
@@ -337,10 +337,10 @@ Once I had variables and scripts working well, environments were the natural nex
 
 ```mermaid
 flowchart LR
-    Dev[Development Environment<br/>baseUrl: dev.example.com]:::dev
-    Stage[Staging Environment<br/>baseUrl: staging.example.com]:::stage
-    Prod[Production Environment<br/>baseUrl: api.example.com]:::prod
-    R[Same Request:<br/>GET {{baseUrl}}/users]:::request
+    Dev["Development Environment<br>baseUrl: dev.example.com"]:::dev
+    Stage["Staging Environment<br>baseUrl: staging.example.com"]:::stage
+    Prod["Production Environment<br>baseUrl: api.example.com"]:::prod
+    R["Same Request:<br>GET &#123;&#123;baseUrl&#125;&#125;/users"]:::request
 
     Dev -.->|active| R
     Stage -.->|active| R
