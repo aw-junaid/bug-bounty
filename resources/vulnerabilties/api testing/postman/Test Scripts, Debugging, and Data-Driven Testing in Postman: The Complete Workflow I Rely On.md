@@ -1,5 +1,5 @@
 # Test Scripts, Debugging, and Data-Driven Testing in Postman: The Complete Workflow I Rely On
-
+ 
 There's a specific moment in my API testing journey where things shifted from "manually clicking Send and eyeballing the response" to "actually running a test suite." That shift happened once I got serious about three things: writing real test scripts, debugging them properly when they failed, and feeding them data instead of hardcoded values. This post is my full walkthrough of all three, in the order I actually learned them, with the diagrams, tested code, and hard-won lessons I picked up along the way.
 
 ---
