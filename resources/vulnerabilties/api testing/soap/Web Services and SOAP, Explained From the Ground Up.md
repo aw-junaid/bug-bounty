@@ -2,7 +2,6 @@
 
 I've spent a lot of time with SOAP, both the specification and the sometimes painful work of getting two toolkits to agree with each other. This post is my attempt to explain the whole picture in one place. It starts with the general idea of a web service, climbs through the technology stack, and then goes deep into SOAP: envelopes, headers, faults, actors, RPC, encoding, and transports.
 
-I wrote this while working through the SOAP-era material from *Programming Web Services with SOAP*, chapters 1 and 2. Some of that material comes from a very early draft of the spec, so I've flagged the parts that changed later.
 
 **What you'll get from this post:**
 
