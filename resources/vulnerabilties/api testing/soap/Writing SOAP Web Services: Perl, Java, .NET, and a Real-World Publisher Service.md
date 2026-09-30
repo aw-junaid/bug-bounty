@@ -2,7 +2,6 @@
 
 In my last post I worked through the theory: envelopes, headers, faults, actors, and encoding. That's the "under the hood" view. This time I'm climbing back out and looking at what it actually takes to **build and deploy** a SOAP web service, using three different toolkits from the SOAP era: **SOAP::Lite** for Perl, **Apache SOAP** for Java, and **Microsoft .NET** with C#. Then I'll walk through a genuinely useful example, the **Publisher web service**, which manages a small database of news items and shows what a real service with authentication looks like.
 
-I'm basing this on chapters 3 and 4 of *Programming Web Services with SOAP*. Where I've tested something myself (I have, in a few key places using modern Python as a stand-in for toolkits I can't install here), I'll say so plainly, and I'll flag anywhere the book's code has a bug or is incomplete.
 
 **What's in this post:**
 
