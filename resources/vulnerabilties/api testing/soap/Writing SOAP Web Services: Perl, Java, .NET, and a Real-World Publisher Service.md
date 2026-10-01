@@ -1,4 +1,4 @@
-# Writing SOAP Web Services: Perl, Java, .NET, and a Real-World Publisher Service
+# Writing SOAP Web Services: Perl, Java, .NET, and a Real-World Publisher Service 
 
 In my last post I worked through the theory: envelopes, headers, faults, actors, and encoding. That's the "under the hood" view. This time I'm climbing back out and looking at what it actually takes to **build and deploy** a SOAP web service, using three different toolkits from the SOAP era: **SOAP::Lite** for Perl, **Apache SOAP** for Java, and **Microsoft .NET** with C#. Then I'll walk through a genuinely useful example, the **Publisher web service**, which manages a small database of news items and shows what a real service with authentication looks like.
 
