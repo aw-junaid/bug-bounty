@@ -2,7 +2,8 @@
 
 I've now written a service by hand (twice, in two different toolkits), and I've built a real one with authentication. What I haven't done yet is answer a question that matters the moment you stop being the only person calling your own service: **how does someone else figure out how to use it?**
 
-That's what this post is about. It covers two things that work together but solve different problems. **WSDL** (the Web Services Description Language) answers "what does this service look like, and how do I talk to it?" **UDDI** and **WS-Inspection** answer "where do I even find this service in the first place?"
+That's what this post is about. It covers two things that work together but solve different problems. **WSDL** (the Web Services Description Language) answers "what does this service look like, and how do I talk to it?" **UDDI** and **WS-Inspection** answer "where do I even find this service in the first place?".
+
 **What's in this post:**
 
 - Why self-description matters and what WSDL buys you concretely
