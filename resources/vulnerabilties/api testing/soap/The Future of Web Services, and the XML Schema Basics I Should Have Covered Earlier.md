@@ -1,6 +1,6 @@
 # The Future of Web Services, and the XML Schema Basics I Should Have Covered Earlier
 
-This is the closing post in a series I've been writing while working through *Programming Web Services with SOAP*. I've covered the core protocol, building and deploying services, WSDL, UDDI, and a full peer-to-peer example with real security tradeoffs. This time I'm looking at chapter 9, the book's forward-looking chapter on where SOAP, WSDL, and UDDI were headed, plus the standardization landscape from Appendix A, and then circling back to something genuinely foundational I've been leaning on without fully explaining: **XML Schema's simple and complex types**, from Appendix B.
+This is the closing post in a series I've been writing while working through *Programming Web Services with SOAP*. I've covered the core protocol, building and deploying services, WSDL, UDDI, and a full peer-to-peer example with real security tradeoffs.
 
 I want to be upfront about one thing before I start: chapter 9 is speculative by design. It was written at a specific, unsettled moment in the industry, and a lot of what it predicts didn't play out the way the authors expected. I'll flag that honestly throughout, rather than presenting 2001-2002 predictions as settled fact. Where I *can* verify something concretely, I did: I built a real XSD from the book's Appendix B examples and ran it through an actual schema validator, and in the process, I found a genuine, interesting bug in how the book explains type restriction. More on that below.
 
