@@ -2,7 +2,6 @@
 
 I've spent three posts now building up the pieces: SOAP itself, writing and deploying services, describing them with WSDL, and discovering them through UDDI. This post is where all of it gets put to work on something with real shape, a peer-to-peer source-code-sharing network called **CodeShare**, and then a step back to look at the wider, messier question of **web services security** as it stood at the time this book was written.
 
-I'm working through chapters 7 and 8 of *Programming Web Services with SOAP* here. CodeShare is the most substantial example in the whole book: four separate WSDL-described interfaces, a mix of Java and Perl, digitally signed security tokens, and a genuinely peer-to-peer architecture where the line between "client" and "server" gets blurry on purpose. As with my earlier posts, I tested what I reasonably could, a simplified but faithful model of the SAML-style trust flow and the Dublin-Core-based access control logic, and I'm upfront about what I couldn't run directly (the actual IBM XML Security Suite, Apache SOAP with a source patch, and so on).
 
 **What's in this post:**
 
