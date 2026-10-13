@@ -1,7 +1,5 @@
 # Performance Testing Without the Panic: Planning, Building, Running and Reading a Test
 
-*A practical walkthrough with JMeter concepts, runnable Python tooling, diagrams, and the mistakes I've learned to avoid.*
-
 ---
 
 I used to treat performance testing as the thing you do in the last week before release, when somebody senior asks, "Has anyone checked if it's fast?" That approach produced exactly what you'd expect: a pile of graphs nobody could interpret, a couple of panicked "fixes" based on guesses, and a second test run that contradicted the first.
@@ -1185,5 +1183,3 @@ Most of all, don't wait. Start with one flow, one goal and one small run, and le
 | `analyze_results.py` | Statistics, rolling error rate, pass/fail | Tested |
 | `kpi_monitor.py` | CPU, memory and network sampler (needs `psutil`) | Tested |
 | JMeter GUI steps and CLI commands | Standard JMeter usage | Not run here |
-
-*This post is based on the performance testing chapter you provided, extended with my own explanations, diagrams and tested code.*
