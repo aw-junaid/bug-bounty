@@ -1,6 +1,5 @@
 # Security Testing Is Not a Secret Club: Threat Modeling, STRIDE, DREAD and a Security Mindset
 
----
 
 For years I assumed security testing belonged to someone else. I pictured people in dark rooms chaining together obscure exploits, and I filed the whole field under "needs superhuman technical skills, not for me."
 
