@@ -1,6 +1,5 @@
 # Performance Testing Without the Panic: Planning, Building, Running and Reading a Test
 
----
 
 I used to treat performance testing as the thing you do in the last week before release, when somebody senior asks, "Has anyone checked if it's fast?" That approach produced exactly what you'd expect: a pile of graphs nobody could interpret, a couple of panicked "fixes" based on guesses, and a second test run that contradicted the first.
 
