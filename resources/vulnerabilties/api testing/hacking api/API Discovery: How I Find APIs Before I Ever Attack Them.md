@@ -820,6 +820,31 @@ That four-step arc — scan, browse, read the JS, confirm with an intercepting p
 
 ---
 
+## Common mistakes I see (and have made myself)
+
+A quick table of the discovery-phase mistakes that cost people the most time, based on patterns I keep running into — my own early mistakes included:
+
+| Mistake | Why it hurts | What to do instead |
+|---|---|---|
+| Treating a scanner's silence as "no API here" | Generic vuln scanners are built for web pages, not JSON endpoints, and they frequently miss APIs entirely | Confirm manually with a baseline-comparison probe before writing off a target |
+| Brute-forcing with the giant wordlist first | You can burn hours of a limited engagement window on one host | Start with a short, API-specific wordlist; escalate only if time allows |
+| Skipping documentation because "I'll remember it" | You won't, three phases later, when fifty tabs deep | Screenshot and log findings the moment you see them, not at the end of the day |
+| Assuming a single 404 means "doesn't exist" | Many APIs 404 on GET even for real paths that only accept POST/PUT | Try multiple HTTP methods, not just GET, before ruling a path out |
+| Only testing as a guest | Admin- and auth-only functionality is where most interesting bugs live | Deliberately re-walk the app as an authenticated user and, if in scope, as an admin |
+| Copying commands from an old write-up verbatim | Flags change between major tool versions; directories like ProgrammableWeb disappear outright | Check `--help` / current docs before trusting a years-old command |
+| Chasing every lead the instant you see it | Phase 0 opportunism is good, but losing your place in a structured process is not | Note the lead, finish the current pass, then dive in with full attention |
+
+### A short FAQ
+
+**"Do I need all five scripts, or can I just use Burp and ZAP?"**
+Burp and ZAP cover a lot of this ground with a GUI, and for a one-off engagement that's often enough. I wrote these scripts because I run discovery often enough that automating the repetitive parts — building dork lists, filtering Amass output, parsing Nmap XML, diffing baseline responses — saves real time across dozens of engagements. Use whichever fits your workflow; the underlying technique is what matters, not the specific tool.
+
+**"Why Python and not a shell one-liner?"**
+Mostly readability and testability. The `verdict()` function in `baseline_probe.py` is the kind of logic I want to unit-test in isolation before trusting it against a live target, and that's much easier in a small Python function than in a chain of `grep`/`awk`.
+
+**"These scripts look simple — is that intentional?"**
+Yes. Every one of them does one narrow thing and prints plain text you can pipe into the next tool. I'd rather have five small, inspectable scripts I fully understand than one opaque "do everything" tool I have to trust blindly. When you're reporting findings to a client, being able to explain exactly how you found something matters almost as much as the finding itself.
+
 ## Closing notes
 
 A few things I want to leave you with, since they're easy to forget once you're deep in a scan output:
