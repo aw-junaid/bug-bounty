@@ -72,8 +72,6 @@
   - [Exploitation](#exploitation-tools)
   - [Reconnaissance](#reconnaissance-tools)
   - [Utilities](#utility-tools)
-- [Write-ups](#write-ups)
-  - [2026](#2026-write-ups)
 - [Repository Statistics](#repository-statistics)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
@@ -293,17 +291,6 @@
 - [Wordlist Merger & Deduplicator](tools/utilities/wordlist-merger.sh) — Bash utility for combining and cleaning wordlists.
 
 
-## Write-ups
-
-> Real-world bug bounty reports, vulnerability disclosures, and lessons learned from actual security research engagements.
-
-### 2026 Write-ups
-
-- [Slack Vulnerability Write-up](write-ups/2026/slack.md) — Detailed analysis of a discovered vulnerability in Slack's infrastructure.
-
-### Write-ups Index
-
-- [Write-ups Repository Index](write-ups/README.md) — Complete catalog of all write-ups with severity ratings and bounty amounts.
 
 
 ## Repository Statistics
@@ -319,7 +306,6 @@
 | Exploitation Tools | 2 |
 | Reconnaissance Tools | 3 |
 | Utility Tools | 2 |
-| Write-ups | 1+ |
 
 
 ## Code of Conduct
