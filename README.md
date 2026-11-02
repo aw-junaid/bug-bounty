@@ -39,6 +39,8 @@
   <img src="https://img.shields.io/static/v1?message=Discord&logo=discord&label=&color=7289DA&logoColor=white&labelColor=&style=for-the-badge" height="27" alt="discord logo" />
 </a>
 
+For a text-only contact page, see [CONTACTME.md](CONTACTME.md).
+
 ---
 
 ## Support This Project
@@ -48,7 +50,7 @@
 [![Kali Linux Unleashed](https://img.shields.io/badge/Kali%20Linux%20Unleashed-9B59B6?style=for-the-badge&logo=kalilinux&logoColor=white)](https://buymeacoffee.com/awjunaid/e/558655)
 [![359 Python Automation Scripts](https://img.shields.io/badge/359%20Python%20Automation%20Scripts-3776AB?style=for-the-badge&logo=python&logoColor=FFD43B)](https://buymeacoffee.com/awjunaid/e/558147)
 
-> A comprehensive, production-ready knowledge base for security researchers, penetration testers, and bug bounty hunters. This repository contains battle-tested methodologies, cheatsheets, automation tools, wordlists, and real-world write-ups covering web penetration testing, API security, cloud exploitation, and modern vulnerability assessment techniques.
+> A comprehensive, production-ready knowledge base for security researchers, penetration testers, and bug bounty hunters. This repository contains battle-tested methodologies, cheatsheets, automation tools, wordlists, deep-dive research articles, vulnerable practice applications, and real-world write-ups covering web penetration testing, API security, cloud exploitation, and modern vulnerability assessment techniques.
 
 
 > **IMPORTANT NOTE & WARNING**
@@ -65,6 +67,8 @@
   - [Web Technologies](#web-technologies--infrastructure)
 - [Resources](#resources)
   - [Cheatsheets](#security-cheatsheets)
+  - [Research & Deep-Dive Articles](#research--deep-dive-articles)
+  - [Vulnerable Practice Applications](#vulnerable-practice-applications)
   - [Templates](#report-templates)
   - [Wordlists](#wordlists)
 - [Tools](#tools)
@@ -72,6 +76,8 @@
   - [Exploitation](#exploitation-tools)
   - [Reconnaissance](#reconnaissance-tools)
   - [Utilities](#utility-tools)
+  - [Personal Scripts](#personal-scripts)
+- [Bug Bounty Platform Profiles](#bug-bounty-platform-profiles)
 - [Repository Statistics](#repository-statistics)
 - [Code of Conduct](#code-of-conduct)
 - [License](#license)
@@ -85,7 +91,7 @@
 
 ## Methodologies
 
-> A complete collection of penetration testing methodologies covering every major web vulnerability class, attack technique, and exploitation strategy. Each document provides step-by-step guidance, detection methods, and practical examples for real-world bug bounty hunting scenarios.
+> A complete collection of penetration testing methodologies covering every major web vulnerability class, attack technique, and exploitation strategy. Each document provides step-by-step guidance, detection methods, and practical examples for real-world bug bounty hunting scenarios. See the [Methodologies Overview](methodologies/README.md) for an index of everything below.
 
 ### Web Penetration Testing
 
@@ -167,7 +173,7 @@
 
 ## Resources
 
-> Curated collection of quick-reference cheatsheets, reusable templates, and targeted wordlists designed to accelerate bug bounty hunting and penetration testing workflows.
+> Curated collection of quick-reference cheatsheets, reusable templates, targeted wordlists, long-form research articles, and vulnerable practice applications designed to accelerate bug bounty hunting and penetration testing workflows.
 
 ### Security Cheatsheets
 
@@ -205,6 +211,7 @@
 - [Jenkins Exploitation Commands](resources/cheatsheets/Jenkins.md) — Groovy script RCE and credential harvesting techniques.
 - [Joomla Security Testing](resources/cheatsheets/Joomla.md) — Component enumeration and admin bypass commands.
 - [Linux Kernel Exploit Reference](resources/cheatsheets/Linux%20Kernel%20Exploits.md) — LPE exploit compilation and execution commands.
+- [Linux Operating System Reference](resources/cheatsheets/Linux%20Operating%20System.md) — Core Linux internals, permissions, and commands relevant to security testing.
 - [LFI & RFI Payload Guide](resources/cheatsheets/Local%20%26%20Remote%20File%20Inclusion.md) — Path traversal and remote file inclusion patterns.
 - [MFA/2FA Bypass Techniques](resources/cheatsheets/MFA-2FA%20Security%20Testing.md) — MFA fatigue, bypass codes, and session hijacking.
 - [Modern C2 Framework Commands](resources/cheatsheets/Modern%20C2%20Frameworks.md) — Cobalt Strike, Mythic usage and detection.
@@ -241,6 +248,31 @@
 - [Common Ports Reference](resources/cheatsheets/ports.md) — Service identification and default port numbers.
 - [Web Penetration Commands](resources/cheatsheets/web-penetration.md) — Consolidated web testing command reference.
 - [XSS Payload Cheatsheet](resources/cheatsheets/xss-cheatsheet.md) — Reflected, stored, and DOM-based XSS payloads.
+
+### Research & Deep-Dive Articles
+
+**Long-Form Research, Field Notes, and Learning Journals** — In-depth write-ups that go beyond quick reference, covering API design/security and SQL injection in detail. Start at the [Research on Vulnerabilities index](resources/research%20on%20vulnerabilties/README.md).
+
+- **[API Testing & API Security](resources/vulnerabilties/api%20testing/README.md)** — 130+ articles on API design, governance, hacking methodology, and tooling, organized into:
+  - [GraphQL](resources/vulnerabilties/api%20testing/GraphQL/) — GraphQL fundamentals, attack surface mapping, and lab setup.
+  - [Hacking API](resources/vulnerabilties/api%20testing/hacking%20api/) — Discovery, injection, auth/authz attacks (BOLA/BFLA), fuzzing, and a [Scripts](resources/vulnerabilties/api%20testing/hacking%20api/Scripts/) folder (recon, BOLA hunter, JWT toolkit, mass-assignment fuzzer, rate-limit profiler).
+  - [JSON](resources/vulnerabilties/api%20testing/json/) — JSON fundamentals, schema, and tooling across Java, JavaScript, and Ruby.
+  - [Postman](resources/vulnerabilties/api%20testing/postman/) — Collections, scripting, environments, SOAP/mock APIs, and a companion [book](resources/vulnerabilties/api%20testing/postman/book/).
+  - [RESTful](resources/vulnerabilties/api%20testing/RESTful/) — Hypermedia-driven API design and resilient client patterns.
+  - [SOAP](resources/vulnerabilties/api%20testing/soap/) — WSDL, UDDI, and classic SOAP web services.
+  - [Test API](resources/vulnerabilties/api%20testing/test%20api/) — API test strategy, automation, exploratory testing, and security testing mindset.
+- **[SQL Injection Deep Dive](resources/vulnerabilties/sql/)** — 60+ files covering SQLi theory and practice, including a [book](resources/vulnerabilties/sql/book/), interview-style [questions](resources/vulnerabilties/sql/questions/), ready-to-use [SQL payloads](resources/vulnerabilties/sql/sql%20payloads/) (boolean, time-based, UNION, NoSQL, WAF-bypass encodings), and standalone HTML labs (`chat_app_pentest_checklist.html`, `login system demo.html`, `sql_injection_insertion_anatomy.html`).
+
+### Vulnerable Practice Applications
+
+**Hands-On Labs** — Deliberately vulnerable applications to practice exploitation safely in your own environment.
+
+- [Vulnerable Slack Clone](resources/vulnerable%20apps/slack/README.md) — A full PHP/MySQL chat application (auth, channels, messaging, file upload, WebSocket server) with Docker/Kubernetes deployment files, seeded with real-world bug classes documented in [vulnerabilities/](resources/vulnerable%20apps/slack/vulnerabilities/):
+  - [Broken Access Control](resources/vulnerable%20apps/slack/vulnerabilities/01-broken-access-control.md)
+  - [Injection](resources/vulnerable%20apps/slack/vulnerabilities/02-injection.md)
+  - [Crypto, Auth & Session](resources/vulnerable%20apps/slack/vulnerabilities/03-crypto-auth-session.md)
+  - [Misconfiguration & Files](resources/vulnerable%20apps/slack/vulnerabilities/04-misconfiguration-and-files.md)
+- [SQL Injection Lab](resources/vulnerable%20apps/sql-injection-lab/README.md) — A small Python/Flask backend + HTML/JS frontend for practicing SQL injection, with a bundled [payload detector](resources/vulnerable%20apps/sql-injection-lab/payload_detector/).
 
 ### Report Templates
 
@@ -290,7 +322,22 @@
 - [Custom Payload Generator](tools/utilities/payload-generator.py) — Python script for creating targeted injection payloads.
 - [Wordlist Merger & Deduplicator](tools/utilities/wordlist-merger.sh) — Bash utility for combining and cleaning wordlists.
 
+### Personal Scripts
 
+**Personal Challenges & Notes** — Self-directed exercises used to build and track hands-on skills.
+
+- [8-Hour Challenge](tools/personal-script/8-Hour%20Challenge.md) — A timeboxed personal bug-hunting challenge and retrospective.
+- [Personal Scripts README](tools/personal-script/readme.md) — Notes and index for this folder.
+
+
+## Bug Bounty Platform Profiles
+
+**Platform Write-Ups & Architecture Notes** — Notes and profile pages tied to specific bug bounty platforms and the programs studied on them.
+
+- [Bugcrowd Profile](profiles/bugcrowd/README.md) — Program notes and activity on Bugcrowd.
+- [HackerOne Profile](profiles/hackerone/README.md) — Program notes and activity on HackerOne, including a deep dive on the Slack target:
+  - [Slack Full Architecture](profiles/hackerone/slack/slack_full_architecture.html) — Interactive architecture breakdown.
+  - [Slack Tech Stack](profiles/hackerone/slack/slack-tech-stack.md) — Technology stack notes used while researching the target.
 
 
 ## Repository Statistics
@@ -299,13 +346,18 @@
 |:---------|:-----------:|
 | Methodologies - Web Penetration | 38 |
 | Methodologies - Web Technologies | 29 |
-| Cheatsheets | 68 |
+| Cheatsheets | 69 |
+| Research & Deep-Dive Articles (API + SQL) | 190+ |
+| Vulnerable Practice Applications | 2 |
 | Report Templates | 1 |
 | Wordlists | 3 |
 | Automation Tools | 2 |
 | Exploitation Tools | 2 |
 | Reconnaissance Tools | 3 |
 | Utility Tools | 2 |
+| Personal Scripts | 2 |
+| Course Modules (Module 1) | 12 |
+| Platform Profiles | 2 |
 
 
 ## Code of Conduct
@@ -334,6 +386,20 @@
 
 - [README](course/README.md) — Course syllabus, prerequisites, and learning objectives.
 
+**Module 1 — Programming & Execution Fundamentals** — Foundational computer science and scripting knowledge for security work:
+
+- [Definition and Purpose](course/module-1/Definition%20and%20purpose.md) — What programming is and why it matters for security.
+- [Why Programming Matters in Cybersecurity](course/module-1/Why%20programming%20matters%20in%20cybersecurity.md) — Why hackers need to code.
+- [How Code Execution Works](course/module-1/How%20code%20execution%20works.md) — From source code to running process.
+- [Compiled vs Interpreted Languages](course/module-1/Compiled%20vs%20Interpreted%20languages.md) — Trade-offs and security implications of each model.
+- [C & Assembly](course/module-1/C-Assembly.md) — Low-level programming fundamentals.
+- [Bash / Shell Scripting](course/module-1/Bash-Shell%20Scripting.md) — Automating recon and exploitation with shell scripts.
+- [JavaScript for Security Professionals](course/module-1/JavaScript%20for%20Security%20Professionals.md) — JS fundamentals for client-side and DOM-based testing.
+- [Python](course/module-1/Python.md) and [Python Programming](course/module-1/Python%20Programming.md) — Core Python language concepts.
+- [Running Python Code](course/module-1/Running%20Python%20Code.md) — Environments, interpreters, and execution.
+- [Python Variables and Data Types](course/module-1/programming/python/Variables%20and%20Data%20Types.md)
+- [Python Operators](course/module-1/programming/python/Operators.md)
+
 
 ## Contributing Guidelines
 
@@ -341,8 +407,9 @@
 
 1. Read the [Code of Conduct](CODE_OF_CONDUCT.md)
 2. Review the [Security Policy](SECURITY.md) for vulnerability disclosure
-3. Submit pull requests with clear documentation
-4. Ensure all techniques are for **authorized testing only**
+3. Read the [Contributing Guide](CONTRIBUTING.md) for the full contribution workflow
+4. Submit pull requests with clear documentation
+5. Ensure all techniques are for **authorized testing only**
 
 
 ## Final Warning
